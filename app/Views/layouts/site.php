@@ -44,10 +44,32 @@ $logo = setting('site_logo', '');
 $favicon = setting('site_favicon', '');
 $cookieEnabled = (bool) setting('cookie_enabled', false);
 
+// SEO robots: força noindex em áreas privadas (conta/login/cadastro),
+// independentemente do que o controller definiu.
+$privatePrefixes = ['/conta', '/login', '/criar-conta'];
+$isPrivateArea = false;
+foreach ($privatePrefixes as $pfx) {
+    if ($currentUri === $pfx || strpos($currentUri, $pfx . '/') === 0) { $isPrivateArea = true; break; }
+}
+$robotsMeta = $isPrivateArea ? 'noindex, nofollow' : ($seo['robots'] ?? 'index,follow');
+
 // Estado do jogador (integração com a API do jogo). Não expõe tokens.
 $playerLoggedIn = \App\Services\GameApi\PlayerSession::check();
 $playerName = $playerLoggedIn ? \App\Services\GameApi\PlayerSession::displayName() : '';
 $gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
+
+// Reaceite de documentos obrigatórios (quando há nova versão publicada).
+$reacceptPending = [];
+if ($playerLoggedIn) {
+    $pid = (string) (\App\Services\GameApi\PlayerSession::userId() ?? '');
+    if ($pid !== '') {
+        try {
+            $reacceptPending = (new \App\Services\ConsentService())->pendingReacceptance($pid);
+        } catch (\Throwable $e) {
+            $reacceptPending = [];
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -57,7 +79,7 @@ $gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
     <title><?= e($seo['title']) ?></title>
     <meta name="description" content="<?= e($seo['description']) ?>">
     <?php if (!empty($seo['keywords'])): ?><meta name="keywords" content="<?= e($seo['keywords']) ?>"><?php endif; ?>
-    <meta name="robots" content="<?= e($seo['robots']) ?>">
+    <meta name="robots" content="<?= e($robotsMeta) ?>">
     <link rel="canonical" href="<?= e($seo['canonical']) ?>">
 
     <!-- Open Graph -->
@@ -166,6 +188,18 @@ $gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
     <?php endif; ?>
 </nav>
 
+<?php if (!empty($reacceptPending)): ?>
+<div class="reaccept-banner">
+    <div class="container">
+        Atualizamos nossos documentos. Revise e confirme:
+        <?php foreach ($reacceptPending as $i => $t): ?>
+            <?= $i > 0 ? ' · ' : ' ' ?><a href="/<?= $t === 'terms' ? 'termos' : 'privacidade' ?>"><?= $t === 'terms' ? 'Termos de Uso' : 'Política de Privacidade' ?></a>
+        <?php endforeach; ?>
+        · <a href="/conta/privacidade">gerenciar consentimentos</a>.
+    </div>
+</div>
+<?php endif; ?>
+
 <main id="main" tabindex="-1">
     <?php foreach (($flashes['success'] ?? []) as $msg): ?>
         <div class="container mt-3"><div class="site-alert site-alert-success"><?= e($msg) ?></div></div>
@@ -204,6 +238,11 @@ $gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
             </div>
             <div class="footer-col">
                 <h4>Legal</h4>
+                <a href="/privacidade">Privacidade</a>
+                <a href="/termos">Termos de Uso</a>
+                <a href="/termos-de-compra">Termos de Compra</a>
+                <a href="/reembolso">Reembolso</a>
+                <a href="/cookies">Cookies</a>
                 <?php foreach ($footerItems as $item): ?>
                     <a href="<?= e($item['url']) ?>"><?= e($item['label']) ?></a>
                 <?php endforeach; ?>
@@ -217,31 +256,17 @@ $gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
 </footer>
 
 <?php if ($cookieEnabled): ?>
-<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Aviso de cookies" hidden>
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Aviso de cookies" aria-live="polite" hidden>
     <p>
-        <?= e(setting('cookie_text', 'Utilizamos cookies para melhorar sua experiência.')) ?>
-        <?php if ($cp = setting('cookie_policy_url')): ?>
-            <a href="<?= e($cp) ?>">Saiba mais</a>.
-        <?php endif; ?>
+        <?= e(setting('cookie_text', 'Utilizamos cookies essenciais para o funcionamento do site. Você pode escolher aceitar cookies opcionais.')) ?>
+        <a href="/cookies">Política de Cookies</a>.
     </p>
     <div class="actions">
-        <button type="button" class="btn btn-primary" id="cookieAccept">Aceitar</button>
+        <button type="button" class="btn btn-primary" data-cookie-choice="accepted">Aceitar</button>
+        <button type="button" class="btn btn-ghost" data-cookie-choice="rejected">Recusar opcionais</button>
+        <a href="/privacidade/cookies" class="btn btn-ghost">Configurar</a>
     </div>
 </div>
-<script>
-(function () {
-    var b = document.getElementById('cookieBanner');
-    if (!b) return;
-    try {
-        if (localStorage.getItem('cookie_consent') === '1') return;
-    } catch (e) {}
-    b.hidden = false;
-    document.getElementById('cookieAccept').addEventListener('click', function () {
-        try { localStorage.setItem('cookie_consent', '1'); } catch (e) {}
-        b.hidden = true;
-    });
-})();
-</script>
 <?php endif; ?>
 
 <script src="<?= e(asset('js/site.js')) ?>"></script>

@@ -34,6 +34,21 @@ $errors = $errors ?? [];
                     <label for="password_confirmation">Confirmar senha</label>
                     <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                 </div>
+
+                <div class="form-field">
+                    <label class="consent-row">
+                        <input type="checkbox" name="accept_terms" value="1" required>
+                        <span>Li e aceito os <a href="/termos" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span>
+                    </label>
+                    <?php if (isset($errors['accept_terms'])): ?><div class="form-error"><?= e($errors['accept_terms']) ?></div><?php endif; ?>
+                </div>
+                <div class="form-field">
+                    <label class="consent-row">
+                        <input type="checkbox" name="marketing" value="1">
+                        <span>Quero receber novidades e promoções por e-mail (opcional).</span>
+                    </label>
+                </div>
+
                 <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Criar conta</button>
             </form>
             <p class="mt-3" style="text-align:center;">

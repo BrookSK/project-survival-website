@@ -51,6 +51,12 @@ $navSystem = [
     ['system.view',   '/admin/integracoes',   'Integrações',   '🔌'],
     ['system.view',   '/admin/sistema',       'Sistema',       '🖥️'],
 ];
+$navPrivacy = [
+    ['privacy.view',     '/admin/privacidade',               'Visão geral',       '🔒'],
+    ['privacy.view',     '/admin/privacidade/documentos',    'Documentos legais', '📄'],
+    ['privacy.requests', '/admin/privacidade/solicitacoes',  'Solicitações',      '📨'],
+    ['privacy.settings', '/admin/configuracoes?grupo=privacy','Configurações',    '⚙️'],
+];
 
 $renderNav = function (array $items) use ($isActive) {
     foreach ($items as [$perm, $url, $label, $icon]) {
@@ -95,6 +101,11 @@ $renderNav = function (array $items) use ($isActive) {
 
             <div class="nav-group-title">Sistema</div>
             <?php $renderNav($navSystem); ?>
+
+            <?php if (has_permission('privacy.view')): ?>
+                <div class="nav-group-title">Privacidade</div>
+                <?php $renderNav($navPrivacy); ?>
+            <?php endif; ?>
         </nav>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>

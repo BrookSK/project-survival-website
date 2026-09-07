@@ -4,7 +4,7 @@ Website oficial de um jogo, desenvolvido em **PHP puro com arquitetura MVC próp
 
 > Este repositório contém **apenas o website**. O jogo em si é mantido em um repositório separado.
 
-**Versão atual: 2.1.0** — veja o [CHANGELOG](CHANGELOG.md).
+**Versão atual: 2.2.0** — veja o [CHANGELOG](CHANGELOG.md).
 
 ---
 
@@ -320,10 +320,43 @@ Para desenvolvimento local: suba a API do jogo (`npm run dev`, porta 4000) e o
 website apontando o DocumentRoot para `public/`; ative a integração no painel e
 use **Testar conexão**.
 
+## Privacy & Compliance
+
+O site inclui uma camada de privacidade/LGPD que reflete o que o sistema
+realmente coleta (sem dados fictícios):
+
+- **Documentos legais versionados** (Privacidade, Termos, Termos de Compra,
+  Reembolso, Cookies), geridos no painel, publicados em `/privacidade`, `/termos`,
+  `/termos-de-compra`, `/reembolso`, `/cookies`.
+- **Central de Privacidade do jogador** (`/conta/privacidade`): exportar dados,
+  gerenciar consentimentos e solicitar exclusão.
+- **Consentimento** de Termos/Privacidade (obrigatório, versionado) separado de
+  **marketing** (opt-in), com reaceite quando há nova versão.
+- **Admin → Privacidade**: solicitações de titulares, consentimentos,
+  exportações e configurações (dados da empresa, contato, retenção).
+- **Cookies**: banner Aceitar/Recusar/Configurar; apenas cookies essenciais hoje
+  (sem trackers de terceiros).
+
+A conta do jogador pertence à Game API — o site não a replica; guarda apenas
+consentimentos, solicitações e exportações. Dados da empresa e contato de
+privacidade são administráveis (não vêm preenchidos com valores fictícios).
+
+> Os documentos e configurações devem passar por **revisão jurídica** antes da
+> publicação definitiva. A implementação técnica não substitui aconselhamento
+> jurídico. Detalhes em [docs/privacy.md](docs/privacy.md) e no
+> [PRIVACY_AUDIT_REPORT.md](PRIVACY_AUDIT_REPORT.md).
+
 ## Documentação adicional
 
 - [docs/architecture.md](docs/architecture.md) — arquitetura e fluxo de requisição
 - [docs/game-api.md](docs/game-api.md) — integração com a Project Survival API
+- [docs/privacy.md](docs/privacy.md) — privacidade e proteção de dados
+- [docs/data-map.md](docs/data-map.md) — inventário e fluxo de dados
+- [docs/consent-management.md](docs/consent-management.md) — consentimento
+- [docs/data-retention.md](docs/data-retention.md) — retenção
+- [docs/data-subject-requests.md](docs/data-subject-requests.md) — solicitações de titulares
+- [docs/cookies.md](docs/cookies.md) — cookies
+- [docs/security-incidents.md](docs/security-incidents.md) — resposta a incidentes
 - [docs/database.md](docs/database.md) — modelo de dados
 - [docs/migrations.md](docs/migrations.md) — regras e uso de migrations
 - [docs/security.md](docs/security.md) — mecanismos de segurança

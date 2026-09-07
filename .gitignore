@@ -27,6 +27,10 @@
 *.sql.gz
 *.bak
 
+# --- Exportações de dados de titulares (privadas, nunca versionar) ---
+/storage/exports/*
+!/storage/exports/.gitkeep
+
 # --- Dependências (caso venham a existir) ---
 /vendor/
 /node_modules/

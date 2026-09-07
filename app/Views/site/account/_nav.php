@@ -10,6 +10,7 @@ $items = [
     'redeem'    => ['/conta/resgatar', 'Resgatar código'],
     'store'     => ['/loja', 'Loja'],
     'security'  => ['/conta/seguranca', 'Segurança'],
+    'privacy'   => ['/conta/privacidade', 'Privacidade'],
 ];
 ?>
 <nav class="account-nav" aria-label="Menu da conta">

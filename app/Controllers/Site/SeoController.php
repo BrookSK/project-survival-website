@@ -82,6 +82,9 @@ class SeoController extends Controller
             'User-agent: *',
             'Disallow: /admin',
             'Disallow: /install',
+            'Disallow: /conta',
+            'Disallow: /login',
+            'Disallow: /criar-conta',
             '',
             'Sitemap: ' . url('sitemap.xml'),
         ];

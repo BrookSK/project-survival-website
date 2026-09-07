@@ -10,6 +10,7 @@ use App\Services\GameApi\Exceptions\GameApiException;
 use App\Services\GameApi\GameApiConfig;
 use App\Services\GameApi\GameAuthService;
 use App\Services\GameApi\PlayerSession;
+use App\Services\ConsentService;
 use App\Validators\Validator;
 
 /**
@@ -117,6 +118,9 @@ class AuthController extends Controller
             'username' => trim((string) $request->post('username', '')),
             'password' => (string) $request->post('password', ''),
         ];
+        // Aceite obrigatório (Termos + Privacidade); marketing é opcional.
+        $acceptTerms = (bool) $request->post('accept_terms');
+        $marketing = (bool) $request->post('marketing');
 
         $v = new Validator($data, [
             'email'    => 'required|email|max:190',
@@ -124,8 +128,12 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|max:100|confirmed',
         ], ['email' => 'e-mail', 'username' => 'usuário', 'password' => 'senha']);
 
-        if ($v->fails()) {
-            $this->redirectWithErrors($v->errors(), $data, '/criar-conta');
+        $errors = $v->errors();
+        if (!$acceptTerms) {
+            $errors['accept_terms'] = 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.';
+        }
+        if ($errors) {
+            $this->redirectWithErrors($errors, $data, '/criar-conta');
             return;
         }
 
@@ -142,6 +150,7 @@ class AuthController extends Controller
             $tokens = $this->auth->login($data['email'], $data['password']);
             if (!empty($tokens['access_token'])) {
                 PlayerSession::store($tokens);
+                $this->recordConsents($request, $marketing);
                 Session::flash('success', 'Conta criada com sucesso. Bem-vindo!');
                 $this->redirect('/conta');
                 return;
@@ -152,6 +161,21 @@ class AuthController extends Controller
 
         Session::flash('success', 'Conta criada com sucesso. Faça login para continuar.');
         $this->redirect('/login');
+    }
+
+    /**
+     * Registra os consentimentos do jogador recém-logado (obrigatórios na
+     * versão vigente + marketing opcional). Requer sessão do jogador ativa.
+     */
+    private function recordConsents(Request $request, bool $marketing): void
+    {
+        $playerId = (string) (PlayerSession::userId() ?? '');
+        if ($playerId === '') {
+            return;
+        }
+        $consent = new ConsentService();
+        $consent->recordRequiredAcceptance($playerId, 'register', $request->ip(), $request->userAgent());
+        $consent->recordMarketing($playerId, $marketing, $request->ip(), $request->userAgent());
     }
 
     public function logout(Request $request): void

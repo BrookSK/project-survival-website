@@ -242,3 +242,26 @@ if (!function_exists('locale')) {
         return \App\Services\Lang::locale();
     }
 }
+
+if (!function_exists('mask_email')) {
+    /**
+     * Mascara um e-mail para exibição no painel (ex.: "lu****@dominio.com").
+     * Não é criptografia; apenas reduz exposição visual de PII.
+     */
+    function mask_email(?string $email): string
+    {
+        $email = (string) $email;
+        if ($email === '' || strpos($email, '@') === false) {
+            return $email !== '' ? $email : '—';
+        }
+        [$user, $domain] = explode('@', $email, 2);
+        $len = function_exists('mb_strlen') ? mb_strlen($user) : strlen($user);
+        if ($len <= 2) {
+            $masked = $user;
+        } else {
+            $head = function_exists('mb_substr') ? mb_substr($user, 0, 2) : substr($user, 0, 2);
+            $masked = $head . str_repeat('*', min(6, $len - 2));
+        }
+        return $masked . '@' . $domain;
+    }
+}

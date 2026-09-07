@@ -5,6 +5,49 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 O formato segue, de forma pragmática, o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e o versionamento adota [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.2.0] - 2026-09-07
+
+Camada de privacidade, LGPD, termos e governança de dados. Reflete o
+comportamento real do sistema; nada de dados/empresa/provedores fictícios.
+
+### Adicionado
+
+- **Documentos legais versionados** (Política de Privacidade, Termos de Uso,
+  Termos de Compra, Política de Reembolso, Política de Cookies): CRUD no admin
+  com versões imutáveis (rascunho/publicado/arquivado), data de vigência,
+  registro de responsável e histórico. Páginas públicas em `/privacidade`,
+  `/termos`, `/termos-de-compra`, `/reembolso`, `/cookies`.
+- **Central de Privacidade do jogador** (`/conta/privacidade`): ver dados,
+  gerenciar consentimento de marketing, **exportar dados** (JSON sem
+  senhas/tokens, arquivo privado com expiração) e **solicitar exclusão**.
+- **Consentimento no cadastro**: aceite obrigatório de Termos + Privacidade
+  (com versão) separado de marketing (opt-in); banner de reaceite quando uma
+  nova versão obrigatória é publicada.
+- **Admin → Privacidade**: dashboard, solicitações de titulares (fluxo de
+  status com verificação de identidade e auditoria), visão de consentimentos e
+  exportações, configurações (dados da empresa/contato/retenção).
+- **Cookies**: banner Aceitar/Recusar/Configurar; página de preferências; só
+  categorias reais (essenciais; não há trackers de terceiros hoje).
+- **Documentação**: `docs/privacy.md`, `data-map.md`, `consent-management.md`,
+  `data-retention.md`, `data-subject-requests.md`, `cookies.md`,
+  `security-incidents.md` e `PRIVACY_AUDIT_REPORT.md`.
+
+### Segurança
+
+- Permissões `privacy.*` segregadas (exclusão/exportação exigem concessão
+  explícita; editor de conteúdo não as recebe).
+- Exportações fora de `/public`, com token (hash) e expiração; download só do
+  próprio titular autenticado. Máscara de e-mail no painel. `noindex` em áreas
+  privadas. Auditoria registra a ação, não os dados pessoais.
+
+### Banco de dados
+
+- Migration nova **026** (`privacy_policies`, `privacy_policy_versions`,
+  `privacy_consents`, `privacy_requests`, `data_exports`) e seeds **012**
+  (permissões) e **013** (settings de privacidade + registro dos documentos).
+  Nenhuma migration existente foi alterada. Contas de jogador continuam na
+  Game API — o site não as replica.
+
 ## [2.1.0] - 2026-09-07
 
 Integração oficial do website com a **Project Survival API** (`/api/v1`). O site

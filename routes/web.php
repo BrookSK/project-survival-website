@@ -60,6 +60,16 @@ $router->group(['middleware' => [RedirectMiddleware::class, MaintenanceMiddlewar
     // Eventos ativos do jogo.
     $router->get('/eventos', 'Site\\EventsController@index');
 
+    // Preferências de cookies (antes da rota genérica /privacidade).
+    $router->get('/privacidade/cookies', 'Site\\LegalController@cookiePreferences');
+
+    // Documentos legais (versão publicada vigente).
+    $router->get('/privacidade', 'Site\\LegalController@show');
+    $router->get('/termos', 'Site\\LegalController@show');
+    $router->get('/termos-de-compra', 'Site\\LegalController@show');
+    $router->get('/reembolso', 'Site\\LegalController@show');
+    $router->get('/cookies', 'Site\\LegalController@show');
+
     // Área do jogador (exige sessão do jogador — API do jogo).
     $router->group(['middleware' => [PlayerAuthMiddleware::class]], function (Router $router) {
         $router->get('/conta', 'Site\\AccountController@overview');
@@ -68,6 +78,13 @@ $router->group(['middleware' => [RedirectMiddleware::class, MaintenanceMiddlewar
         $router->post('/conta/resgatar', 'Site\\AccountController@redeem');
         $router->get('/conta/seguranca', 'Site\\AccountController@securityForm');
         $router->post('/conta/seguranca', 'Site\\AccountController@changePassword');
+
+        // Central de privacidade do jogador
+        $router->get('/conta/privacidade', 'Site\\AccountPrivacyController@index');
+        $router->post('/conta/privacidade/consentimentos', 'Site\\AccountPrivacyController@updateConsents');
+        $router->post('/conta/privacidade/exportar', 'Site\\AccountPrivacyController@export');
+        $router->get('/conta/privacidade/exportar/download', 'Site\\AccountPrivacyController@download');
+        $router->post('/conta/privacidade/excluir', 'Site\\AccountPrivacyController@requestDeletion');
     });
 
     // Páginas dinâmicas por slug (deve ficar por último para não capturar rotas fixas)

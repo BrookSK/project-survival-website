@@ -61,6 +61,41 @@
         reveals.forEach(function (el) { el.classList.add('visible'); });
     }
 
+    // Consentimento de cookies (Aceitar / Recusar opcionais / Configurar).
+    // Cookies essenciais (sessão/CSRF) são sempre necessários e não dependem
+    // desta escolha. Cookies opcionais só devem ser carregados quando o
+    // consentimento for 'accepted' — hoje o site não usa trackers, então não
+    // há nada condicional a carregar; o hook abaixo fica pronto para o futuro.
+    (function () {
+        var KEY = 'cookie_consent';
+        function readChoice() {
+            try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+        }
+        function saveChoice(choice) {
+            try { localStorage.setItem(KEY, JSON.stringify({ choice: choice, at: new Date().toISOString() })); } catch (e) {}
+        }
+        // Hook: carregar recursos opcionais apenas com consentimento.
+        window.onCookieConsent = window.onCookieConsent || function (choice) {
+            if (choice === 'accepted') {
+                document.dispatchEvent(new CustomEvent('cookies:accepted'));
+            }
+        };
+        var banner = document.getElementById('cookieBanner');
+        var current = readChoice();
+        if (banner && !current) { banner.hidden = false; }
+        if (current && current.choice) { window.onCookieConsent(current.choice); }
+        document.querySelectorAll('[data-cookie-choice]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var choice = btn.getAttribute('data-cookie-choice');
+                saveChoice(choice);
+                if (banner) { banner.hidden = true; }
+                window.onCookieConsent(choice);
+            });
+        });
+        // Expõe utilidades para a página de preferências.
+        window.cookieConsent = { get: readChoice, set: function (c) { saveChoice(c); window.onCookieConsent(c); } };
+    })();
+
     // Menu de conta do jogador (dropdown no header)
     var accountMenu = document.getElementById('accountMenu');
     var accountBtn = document.getElementById('accountBtn');

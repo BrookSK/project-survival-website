@@ -32,6 +32,7 @@ class SettingController extends Controller
         'notifications'  => 'Notificações',
         'game_api'       => 'API do Jogo',
         'game_api_cache' => 'Cache da API',
+        'privacy'        => 'Privacidade',
     ];
 
     public function index(Request $request): void

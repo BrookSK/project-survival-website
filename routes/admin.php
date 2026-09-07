@@ -182,4 +182,17 @@ $router->group(['prefix' => '/admin', 'middleware' => [AuthMiddleware::class]], 
     $router->post('/integracoes/testar', 'Admin\\IntegrationController@test');
     $router->post('/integracoes/conexao', 'Admin\\IntegrationController@saveConnection');
     $router->post('/integracoes/cache/limpar', 'Admin\\IntegrationController@clearCache');
+
+    // Privacidade — documentos legais versionados
+    $router->get('/privacidade/documentos', 'Admin\\PolicyController@index');
+    $router->get('/privacidade/documentos/{id}/historico', 'Admin\\PolicyController@history');
+    $router->get('/privacidade/documentos/{id}/editar', 'Admin\\PolicyController@editForm');
+    $router->post('/privacidade/documentos/{id}/salvar', 'Admin\\PolicyController@save');
+    $router->post('/privacidade/documentos/{id}/versoes/{version}/publicar', 'Admin\\PolicyController@publish');
+
+    // Privacidade — dashboard e solicitações de titulares
+    $router->get('/privacidade', 'Admin\\PrivacyController@dashboard');
+    $router->get('/privacidade/solicitacoes', 'Admin\\PrivacyController@requests');
+    $router->get('/privacidade/solicitacoes/{id}', 'Admin\\PrivacyController@show');
+    $router->post('/privacidade/solicitacoes/{id}/status', 'Admin\\PrivacyController@updateStatus');
 });
