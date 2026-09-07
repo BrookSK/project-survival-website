@@ -12,6 +12,11 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
+// Carrega utilitários de teste (mocks, fakes) antes dos casos.
+foreach (glob(__DIR__ . '/support/*.php') ?: [] as $support) {
+    require_once $support;
+}
+
 $dir = __DIR__ . '/unit';
 $files = glob($dir . '/*Test.php') ?: [];
 

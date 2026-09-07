@@ -194,3 +194,80 @@ foreach ($sections as $index => $section):
         </section>
     <?php endif; ?>
 <?php endforeach; ?>
+
+<?php
+/** Seções vindas da API do jogo (aditivas; só aparecem quando há dados). */
+$gameApiOn = $gameApiOn ?? false;
+$gameEvents = $gameEvents ?? [];
+$featuredProducts = $featuredProducts ?? [];
+$gameNews = $gameNews ?? [];
+?>
+
+<?php if ($gameApiOn && !empty($gameEvents)): ?>
+<section class="section" id="eventos-ativos">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">Agora no jogo</span>
+            <h2>Eventos ativos</h2>
+        </div>
+        <div class="events-grid">
+            <?php foreach (array_slice($gameEvents, 0, 3) as $ev): ?>
+                <article class="event-card reveal">
+                    <?php if (!empty($ev['image'])): ?>
+                        <div class="event-media"><img src="<?= e($ev['image']) ?>" alt="<?= e($ev['title']) ?>" loading="lazy"></div>
+                    <?php endif; ?>
+                    <div class="event-body">
+                        <h3><?= e($ev['title']) ?></h3>
+                        <?php if (!empty($ev['description'])): ?><p><?= e(excerpt((string) $ev['description'], 120)) ?></p><?php endif; ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+        <div class="text-center mt-3"><a href="/eventos" class="btn btn-ghost">Ver todos os eventos</a></div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($gameApiOn && !empty($featuredProducts)): ?>
+<section class="section" id="loja-destaque">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">Loja</span>
+            <h2>Itens em destaque</h2>
+        </div>
+        <div class="store-grid">
+            <?php foreach ($featuredProducts as $p): ?>
+                <?= partial('site.store._card', ['product' => $p]) ?>
+            <?php endforeach; ?>
+        </div>
+        <div class="text-center mt-3"><a href="/loja" class="btn btn-primary">Ir para a loja</a></div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($gameApiOn && !empty($gameNews)): ?>
+<section class="section" id="noticias-jogo">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">Novidades</span>
+            <h2>Notícias do jogo</h2>
+        </div>
+        <div class="news-grid">
+            <?php foreach ($gameNews as $n): ?>
+                <article class="news-card reveal">
+                    <?php if (!empty($n['image'])): ?>
+                        <div class="news-media"><img src="<?= e($n['image']) ?>" alt="<?= e($n['title']) ?>" loading="lazy"></div>
+                    <?php endif; ?>
+                    <div class="news-body">
+                        <h3><?= e($n['title']) ?></h3>
+                        <?php if (!empty($n['excerpt'])): ?><p><?= e(excerpt((string) $n['excerpt'], 130)) ?></p><?php endif; ?>
+                        <?php if (!empty($n['url'])): ?>
+                            <a href="<?= e($n['url']) ?>" target="_blank" rel="noopener" class="news-link">Ler mais</a>
+                        <?php endif; ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>

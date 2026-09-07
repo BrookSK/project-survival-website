@@ -108,3 +108,33 @@ require HELPERS_PATH . '/helpers.php';
 - Execute as migrations pendentes por **Administração → Sistema → Executar migrations** (requer `system.manage`) ou pelo instalador em um ambiente novo. Faça **backup do banco** antes.
 - Após atualizar, use **Sistema → Limpar cache** se necessário.
 - Nunca versione `config/local.php`.
+
+## Integração com a API do jogo
+
+O website consome a API oficial do jogo (`/api/v1`) como cliente server-side.
+
+Requisitos adicionais em produção:
+
+- Extensão **cURL** habilitada no PHP (o cliente HTTP a utiliza).
+- A **Base URL** da API deve usar **HTTPS** e não pode apontar para endereços
+  locais/privados (bloqueio anti-SSRF).
+
+Passos:
+
+1. Rode as migrations/seeds em **Admin → Sistema → Executar migrations** para
+   criar as configurações da integração (seed `011_game_api_settings.sql`).
+2. Em **Admin → Integrações → API do Jogo**, informe a Base URL (com `/api/v1`),
+   o Client ID (se houver), o timeout e ative a integração.
+3. Clique em **Testar conexão** (executa `GET /health`).
+
+Desenvolvimento local (dois projetos):
+
+```bash
+# API do jogo (repositório do jogo)
+cd api && npm install && npm run seed && npm run dev   # porta 4000
+
+# Website PHP: DocumentRoot em public/ (ou servidor embutido a partir de public/)
+```
+
+Em dev, a Base URL pode ser `http://localhost:4000/api/v1` (localhost é
+permitido fora de produção). Ver [game-api.md](game-api.md).

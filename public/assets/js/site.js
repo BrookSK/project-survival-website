@@ -61,6 +61,21 @@
         reveals.forEach(function (el) { el.classList.add('visible'); });
     }
 
+    // Menu de conta do jogador (dropdown no header)
+    var accountMenu = document.getElementById('accountMenu');
+    var accountBtn = document.getElementById('accountBtn');
+    if (accountMenu && accountBtn) {
+        accountBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = accountMenu.classList.toggle('open');
+            accountBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        document.addEventListener('click', function () {
+            accountMenu.classList.remove('open');
+            accountBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
     // Estado de carregamento no envio de formulários (contato, etc.)
     document.querySelectorAll('form').forEach(function (form) {
         if (form.hasAttribute('data-no-loading')) return;

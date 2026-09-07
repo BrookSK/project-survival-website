@@ -339,3 +339,116 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 /* Contraste de foco no admin também herdará via variáveis; garante links legíveis */
 .news-link:focus-visible, .nav-link:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
+
+/* ---------- Menu de conta do jogador (header) ---------- */
+.account-menu { position: relative; }
+.account-btn {
+    display: inline-flex; align-items: center; gap: .5rem; cursor: pointer;
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    padding: .5rem .8rem; border-radius: 10px; font: inherit;
+}
+.account-btn:hover { border-color: rgba(255,255,255,.25); }
+.account-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .8rem; text-transform: uppercase;
+}
+.account-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-dropdown {
+    position: absolute; right: 0; top: calc(100% + .5rem); min-width: 200px;
+    background: var(--bg-elev, #14161d); border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.4); padding: .4rem; display: none; z-index: 120;
+}
+.account-menu.open .account-dropdown { display: block; }
+.account-dropdown a, .account-dropdown button {
+    display: block; width: 100%; text-align: left; padding: .6rem .8rem; border-radius: 8px;
+    color: var(--text); background: none; border: none; font: inherit; cursor: pointer; text-decoration: none;
+}
+.account-dropdown a:hover, .account-dropdown button:hover { background: var(--surface); }
+.account-dropdown form { margin: 0; border-top: 1px solid var(--border); margin-top: .3rem; padding-top: .3rem; }
+
+/* ---------- Loja (integração API do jogo) ---------- */
+.store-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+.store-filter {
+    padding: .5rem 1rem; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted, #aeb6c7); cursor: pointer; font: inherit;
+}
+.store-filter.active, .store-filter:hover { color: #fff; border-color: var(--primary); }
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.25rem; }
+.store-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    display: flex; flex-direction: column; transition: transform .15s, border-color .15s;
+}
+.store-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.18); }
+.store-card-media { position: relative; display: block; aspect-ratio: 16/10; background: #0d0f16; overflow: hidden; }
+.store-card-media img { width: 100%; height: 100%; object-fit: cover; }
+.store-card-noimg { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2.5rem; opacity: .5; }
+.store-badge {
+    position: absolute; top: .6rem; left: .6rem; padding: .25rem .6rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 700; color: #fff;
+}
+.store-badge.featured { background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+.store-badge.owned { background: #16a34a; left: auto; right: .6rem; }
+.store-card-body { padding: 1rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+.store-card-tags { display: flex; gap: .4rem; flex-wrap: wrap; }
+.store-tag { font-size: .7rem; padding: .2rem .5rem; border-radius: 6px; background: rgba(255,255,255,.06); color: var(--text-muted, #aeb6c7); }
+.store-tag.store-rarity { border: 1px solid var(--primary); color: #fff; }
+.store-card-title { font-size: 1.05rem; margin: 0; }
+.store-card-title a { color: var(--text); }
+.store-card-desc { font-size: .85rem; color: var(--text-muted, #aeb6c7); margin: 0; }
+.store-card-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.store-price { font-weight: 800; color: #fff; }
+.store-owned-label { color: #4ade80; font-weight: 700; font-size: .85rem; }
+.btn-sm { padding: .45rem .9rem; font-size: .85rem; }
+
+/* Detalhe do produto */
+.product-detail { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: start; }
+.product-detail-media { border-radius: 16px; overflow: hidden; background: #0d0f16; border: 1px solid var(--border); }
+.product-detail-media img { width: 100%; display: block; }
+.product-desc { color: var(--text-muted, #aeb6c7); line-height: 1.7; }
+.product-price { font-size: 1.8rem; font-weight: 800; color: #fff; margin: 1rem 0; }
+@media (max-width: 720px) { .product-detail { grid-template-columns: 1fr; } }
+
+/* ---------- Eventos ---------- */
+.events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+.event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.event-media { aspect-ratio: 16/9; overflow: hidden; background: #0d0f16; }
+.event-media img { width: 100%; height: 100%; object-fit: cover; }
+.event-body { padding: 1.1rem; }
+.event-body h3 { margin: 0 0 .5rem; }
+.event-body p { color: var(--text-muted, #aeb6c7); margin: 0; }
+.event-meta { font-size: .82rem; margin-top: .6rem !important; opacity: .8; }
+.text-center { text-align: center; }
+
+/* ---------- Área do jogador (Minha conta) ---------- */
+.account-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+.account-nav { display: flex; flex-direction: column; gap: .2rem; position: sticky; top: 90px; }
+.account-nav a, .account-nav-logout {
+    display: block; padding: .7rem .9rem; border-radius: 10px; color: var(--text-muted, #aeb6c7);
+    text-decoration: none; background: none; border: none; font: inherit; text-align: left; cursor: pointer; width: 100%;
+}
+.account-nav a:hover, .account-nav-logout:hover { background: var(--surface); color: var(--text); }
+.account-nav a.active { background: var(--surface); color: #fff; border-left: 3px solid var(--primary); }
+.account-nav form { margin: .4rem 0 0; border-top: 1px solid var(--border); padding-top: .4rem; }
+.account-nav-logout { color: #f87171; }
+.account-content { min-width: 0; }
+.account-data { display: grid; gap: .8rem; margin: 0; }
+.account-data > div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+.account-data dt { color: var(--text-muted, #aeb6c7); margin: 0; }
+.account-data dd { margin: 0; font-weight: 600; text-align: right; word-break: break-word; }
+.entitlement-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.entitlement-list li { display: flex; align-items: center; gap: .6rem; padding: .5rem .2rem; }
+.entitlement-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.account-table { width: 100%; border-collapse: collapse; }
+.account-table th, .account-table td { text-align: left; padding: .6rem .5rem; border-bottom: 1px solid var(--border); }
+.account-table th { color: var(--text-muted, #aeb6c7); font-size: .85rem; }
+.order-status { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 700; background: rgba(255,255,255,.08); }
+.order-status.status-pending { background: rgba(234,179,8,.18); color: #facc15; }
+.order-status.status-paid, .order-status.status-completed { background: rgba(34,197,94,.18); color: #4ade80; }
+.order-status.status-cancelled, .order-status.status-refunded { background: rgba(239,68,68,.18); color: #f87171; }
+@media (max-width: 720px) {
+    .account-layout { grid-template-columns: 1fr; }
+    .account-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+    .account-nav a { border-left: none; }
+}

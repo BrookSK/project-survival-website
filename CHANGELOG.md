@@ -5,6 +5,52 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 O formato segue, de forma pragmática, o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e o versionamento adota [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.1.0] - 2026-09-07
+
+Integração oficial do website com a **Project Survival API** (`/api/v1`). O site
+passa a atuar como cliente server-side da API do jogo, sem tocar no banco do jogo
+e sem alterar migrations existentes.
+
+### Adicionado
+
+- **Camada de integração** em `app/Services/GameApi/`: `HttpClient` (cURL com
+  timeout, retry seguro em GET, logs sanitizados), `GameApiClient` (envelope
+  `{success,data}`/`{success,error}` + mapeamento de status para exceções),
+  `GameApiConfig` (fábrica), `GameApiAdapter` (normalização) e exceções
+  tipadas (ApiUnavailable/Authentication/Validation/NotFound/Conflict/RateLimit).
+- **Services**: `GameAuthService`, `GameStoreService`, `GamePlayerService`,
+  `GameContentService`, `GameConfigService`, `GameHealthService`.
+- **Autenticação do jogador** contra a API: páginas `/login`, `/criar-conta` e
+  `/logout`. Tokens guardados apenas em sessão server-side; refresh automático
+  (uma vez) em 401 via `PlayerSession::withAuth()`.
+- **Área do jogador** (`/conta`, `/conta/inventario`, `/conta/resgatar`,
+  `/conta/seguranca`) protegida por `PlayerAuthMiddleware`.
+- **Loja pública** (`/loja`, `/loja/produto/{id}`) com `owned` por jogador
+  quando autenticado; a compra apenas inicia um pedido `pending` (sem cobrança,
+  sem concessão, sem checkout falso).
+- **Eventos** (`/eventos`) e enriquecimento da **Home** com notícias, eventos e
+  produtos em destaque da API (aditivo e tolerante a falhas).
+- **Admin → Integrações → API do Jogo**: status/health, testar conexão, salvar
+  conexão (com validação anti-SSRF) e limpar cache; abas de configuração em
+  Configurações (API do Jogo / Cache da API).
+- **Cache offline-first** (fresh + stale) para leituras públicas; dados privados
+  do jogador nunca são cacheados de forma compartilhada.
+- **Testes de unidade** da integração (cliente/adapter/UrlGuard/erros) via
+  `MockHttpClient`, sem rede.
+- Documentação `docs/game-api.md` com a matriz de endpoints.
+
+### Segurança
+
+- Proteção anti-SSRF na URL base configurável (`UrlGuard`).
+- Tokens do jogador fora do alcance do JavaScript; cabeçalhos sensíveis nunca
+  logados; CSRF em todos os formulários.
+
+### Banco de dados
+
+- Nenhuma migration nova e nenhuma migration existente alterada. A configuração
+  da integração usa a tabela `settings` via o seed idempotente
+  `011_game_api_settings.sql`. O banco da API do jogo **não** é acessado pelo site.
+
 ## [2.0.0] - 2026-09-07
 
 Evolução completa do website para um produto pronto para produção: CMS ampliado,

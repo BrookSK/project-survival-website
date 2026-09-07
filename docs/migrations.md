@@ -57,3 +57,13 @@ A mesma migration nunca roda duas vezes: cada execução é registrada na tabela
 ## Seeds
 
 Seeds ficam em `database/seeds/` e são **idempotentes** (usam `INSERT ... ON DUPLICATE KEY UPDATE`), podendo ser reexecutados sem duplicar dados. Populam permissões, perfis, configurações padrão, páginas essenciais e menus iniciais.
+
+## Integração com a API do jogo (v2.1.0)
+
+A integração com a API do jogo **não criou nenhuma migration nova** e **não
+alterou nenhuma migration existente**. A configuração vive na tabela `settings`
+(que já existe) e é criada pelo seed idempotente
+`database/seeds/011_game_api_settings.sql` (grupos `game_api` e `game_api_cache`).
+
+O banco de dados da API do jogo é independente e **nunca** é acessado ou alterado
+pelo website — toda comunicação passa pela API REST.

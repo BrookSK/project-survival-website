@@ -48,6 +48,7 @@ $navSystem = [
     ['redirects.view','/admin/redirects',     'Redirects',     '↪️'],
     ['settings.view', '/admin/configuracoes', 'Configurações', '⚙️'],
     ['audit.view',    '/admin/auditoria',     'Auditoria',     '📋'],
+    ['system.view',   '/admin/integracoes',   'Integrações',   '🔌'],
     ['system.view',   '/admin/sistema',       'Sistema',       '🖥️'],
 ];
 

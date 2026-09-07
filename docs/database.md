@@ -50,3 +50,15 @@ O perfil `super-admin` tem acesso **total**, tratado no código (`AuthService::c
 - Definições exatas (DDL): `database/migrations/*.sql`.
 - Retrato consolidado de leitura: `database/schema/schema.sql`.
 - Dados iniciais: `database/seeds/*.sql`.
+
+## Fronteira com o banco do jogo
+
+O website tem seu próprio banco (usuários administrativos, páginas, notícias do
+CMS, mídia, configurações, auditoria, etc.). Os dados que pertencem ao jogo —
+contas de jogador, produtos/loja, entitlements, inventário, pedidos, códigos,
+eventos e configuração remota — vivem no **backend do jogo** e são acessados
+apenas via a API REST (`/api/v1`).
+
+O site **não** compartilha banco com a API do jogo e **não** replica esses dados
+localmente. A única configuração local da integração são chaves na tabela
+`settings` (seed `011_game_api_settings.sql`). Ver [game-api.md](game-api.md).

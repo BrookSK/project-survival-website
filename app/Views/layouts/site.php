@@ -43,6 +43,11 @@ if ($discord === '') {
 $logo = setting('site_logo', '');
 $favicon = setting('site_favicon', '');
 $cookieEnabled = (bool) setting('cookie_enabled', false);
+
+// Estado do jogador (integração com a API do jogo). Não expõe tokens.
+$playerLoggedIn = \App\Services\GameApi\PlayerSession::check();
+$playerName = $playerLoggedIn ? \App\Services\GameApi\PlayerSession::displayName() : '';
+$gameApiOn = \App\Services\GameApi\GameApiConfig::isEnabled();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -107,7 +112,29 @@ $cookieEnabled = (bool) setting('cookie_enabled', false);
             <?php endforeach; ?>
         </nav>
         <div class="header-cta">
-            <?php if ($discord): ?>
+            <?php if ($gameApiOn): ?>
+                <?php if ($playerLoggedIn): ?>
+                    <div class="account-menu" id="accountMenu">
+                        <button class="account-btn" id="accountBtn" aria-haspopup="true" aria-expanded="false">
+                            <span class="account-avatar"><?= e(str_sub($playerName, 0, 1)) ?></span>
+                            <span class="account-name"><?= e($playerName) ?></span>
+                        </button>
+                        <div class="account-dropdown" id="accountDropdown">
+                            <a href="/conta">Minha conta</a>
+                            <a href="/conta/inventario">Inventário</a>
+                            <a href="/conta/resgatar">Resgatar código</a>
+                            <a href="/loja">Loja</a>
+                            <form method="post" action="/logout">
+                                <?= csrf_field() ?>
+                                <button type="submit">Sair</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="/login" class="btn btn-ghost">Entrar</a>
+                    <a href="/criar-conta" class="btn btn-primary">Criar conta</a>
+                <?php endif; ?>
+            <?php elseif ($discord): ?>
                 <a href="<?= e($discord) ?>" target="_blank" rel="noopener" class="btn btn-primary">Comunidade</a>
             <?php endif; ?>
             <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">&#9776;</button>
@@ -119,6 +146,21 @@ $cookieEnabled = (bool) setting('cookie_enabled', false);
     <?php foreach ($headerItems as $item): ?>
         <a href="<?= e($item['url']) ?>" target="<?= e($item['target']) ?>"><?= e($item['label']) ?></a>
     <?php endforeach; ?>
+    <?php if ($gameApiOn): ?>
+        <a href="/loja">Loja</a>
+        <?php if ($playerLoggedIn): ?>
+            <a href="/conta">Minha conta</a>
+            <a href="/conta/inventario">Inventário</a>
+            <a href="/conta/resgatar">Resgatar código</a>
+            <form method="post" action="/logout" class="mt-2">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-ghost" style="width:100%;">Sair</button>
+            </form>
+        <?php else: ?>
+            <a href="/login">Entrar</a>
+            <a href="/criar-conta" class="btn btn-primary mt-2">Criar conta</a>
+        <?php endif; ?>
+    <?php endif; ?>
     <?php if ($discord): ?>
         <a href="<?= e($discord) ?>" target="_blank" rel="noopener" class="btn btn-primary mt-3">Entrar na comunidade</a>
     <?php endif; ?>

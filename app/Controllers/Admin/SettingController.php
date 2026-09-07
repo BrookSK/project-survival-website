@@ -23,13 +23,15 @@ class SettingController extends Controller
      * Grupos exibidos, na ordem, com rótulos amigáveis.
      */
     private const GROUPS = [
-        'general'       => 'Gerais',
-        'email'         => 'E-mail',
-        'seo'           => 'SEO',
-        'social'        => 'Redes sociais',
-        'cookies'       => 'Cookies / LGPD',
-        'system'        => 'Sistema',
-        'notifications' => 'Notificações',
+        'general'        => 'Gerais',
+        'email'          => 'E-mail',
+        'seo'            => 'SEO',
+        'social'         => 'Redes sociais',
+        'cookies'        => 'Cookies / LGPD',
+        'system'         => 'Sistema',
+        'notifications'  => 'Notificações',
+        'game_api'       => 'API do Jogo',
+        'game_api_cache' => 'Cache da API',
     ];
 
     public function index(Request $request): void

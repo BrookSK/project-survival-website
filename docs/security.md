@@ -75,3 +75,22 @@ Resumo dos mecanismos de segurança implementados.
 ## Anti-spam (contato)
 
 - Campo honeypot oculto + verificação de tempo mínimo de preenchimento, além de CSRF e validação de servidor.
+
+## Segurança da integração com a API do jogo
+
+- **Tokens do jogador**: guardados apenas na sessão server-side (cookie
+  HttpOnly/SameSite). Nunca vão para HTML, JavaScript, URLs ou logs. O refresh
+  token só trafega server-to-server.
+- **Anti-SSRF**: a URL base é configurável no painel e validada por `UrlGuard` —
+  exige http/https, em produção obriga HTTPS e bloqueia loopback/link-local/rede
+  privada. Em desenvolvimento, localhost é permitido.
+- **CSRF**: mantido em todos os formulários da integração (login, registro,
+  resgate, compra, alteração de senha, logout).
+- **Rate limit**: o resgate de código é limitado pela própria API (429); o site
+  respeita, desabilita o botão e evita duplo envio — sem tentar contornar.
+- **Logs**: cabeçalhos sensíveis (`Authorization`, `Cookie`, `X-Client-Id`) são
+  redigidos; senhas e tokens jamais são registrados.
+- **Sem segredos no cliente**: apenas a URL pública e o `client_id` público. Não
+  há JWT secret nem API secret no site.
+- **Separação de identidades**: o administrador do site (RBAC próprio) é
+  independente da conta de jogador/administrador da API do jogo.

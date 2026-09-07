@@ -176,4 +176,10 @@ $router->group(['prefix' => '/admin', 'middleware' => [AuthMiddleware::class]], 
     $router->post('/sistema/migrar', 'Admin\\SystemController@migrate');
     $router->post('/sistema/cache/limpar', 'Admin\\SystemController@clearCache');
     $router->get('/diagnostico', 'Admin\\SystemController@diagnostics');
+
+    // Integração com a API do jogo
+    $router->get('/integracoes', 'Admin\\IntegrationController@index');
+    $router->post('/integracoes/testar', 'Admin\\IntegrationController@test');
+    $router->post('/integracoes/conexao', 'Admin\\IntegrationController@saveConnection');
+    $router->post('/integracoes/cache/limpar', 'Admin\\IntegrationController@clearCache');
 });

@@ -74,3 +74,26 @@ Controller  →  Service  →  Model  →  Database (PDO)
 - Segurança por padrão (CSRF, escaping, prepared statements, RBAC).
 - Extensibilidade: novas permissões, páginas, rotas e serviços são adicionados sem reescrever o núcleo.
 - Preparado para integrações futuras (Discord, Steam, newsletter, analytics) sem implementá-las prematuramente.
+
+## Integração com a API do jogo (cliente HTTP)
+
+Além do MVC do site, há uma camada dedicada de integração com a API oficial do
+jogo em `app/Services/GameApi/`:
+
+```text
+Controller → Service (GameApi\*) → GameApiClient → HttpClient (cURL) → API /api/v1
+```
+
+- **HttpClient**: único ponto que faz cURL (timeout, retry seguro em GET, logs
+  sanitizados).
+- **GameApiClient**: interpreta o envelope `{success,data}`/`{success,error}` e
+  mapeia status HTTP para exceções tipadas.
+- **Services** (`GameAuthService`, `GameStoreService`, `GamePlayerService`,
+  `GameContentService`, `GameConfigService`, `GameHealthService`): regras por
+  domínio, cache das leituras públicas.
+- **GameApiAdapter**: normaliza respostas para as views.
+- **PlayerSession**: tokens do jogador na sessão server-side + refresh.
+- **UrlGuard**: validação da URL base e proteção anti-SSRF.
+
+O site é cliente da API; não acessa o banco do jogo. Detalhes em
+[game-api.md](game-api.md).

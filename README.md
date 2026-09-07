@@ -4,7 +4,7 @@ Website oficial de um jogo, desenvolvido em **PHP puro com arquitetura MVC próp
 
 > Este repositório contém **apenas o website**. O jogo em si é mantido em um repositório separado.
 
-**Versão atual: 2.0.0** — veja o [CHANGELOG](CHANGELOG.md).
+**Versão atual: 2.1.0** — veja o [CHANGELOG](CHANGELOG.md).
 
 ---
 
@@ -293,9 +293,37 @@ Algumas rotinas devem rodar periodicamente (publicação de notícias agendadas,
 limpeza de cache/rate limit/notificações). Veja
 [docs/deployment.md](docs/deployment.md#tarefas-agendadas-cron).
 
+## Integração com a Project Survival API
+
+O website integra-se à **API oficial do jogo** (Node + Express, `/api/v1`) como
+cliente server-side:
+
+```text
+Website PHP  →  Project Survival API v1  →  Backend do jogo
+```
+
+O site **não** acessa o banco do jogo e **não** duplica contas, produtos ou
+entitlements — a API é a fonte de verdade. A configuração (Base URL, Client ID,
+timeout, cache) é feita no painel em **Admin → Integrações → API do Jogo** (sem
+`.env`). A URL padrão de desenvolvimento é `http://localhost:4000/api/v1`.
+
+Recursos integrados: contas de jogador (login/registro/logout, refresh
+automático), perfil, loja (catálogo, detalhe, `owned`, início de pedido sem
+cobrança), inventário/entitlements/pedidos, resgate de códigos, eventos,
+notícias e status do jogo. Leituras públicas têm cache com fallback (offline-first);
+dados privados nunca são cacheados.
+
+Detalhes, matriz de endpoints e troubleshooting em
+[docs/game-api.md](docs/game-api.md).
+
+Para desenvolvimento local: suba a API do jogo (`npm run dev`, porta 4000) e o
+website apontando o DocumentRoot para `public/`; ative a integração no painel e
+use **Testar conexão**.
+
 ## Documentação adicional
 
 - [docs/architecture.md](docs/architecture.md) — arquitetura e fluxo de requisição
+- [docs/game-api.md](docs/game-api.md) — integração com a Project Survival API
 - [docs/database.md](docs/database.md) — modelo de dados
 - [docs/migrations.md](docs/migrations.md) — regras e uso de migrations
 - [docs/security.md](docs/security.md) — mecanismos de segurança
