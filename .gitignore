@@ -1,0 +1,48 @@
+# ==========================================================
+# Arquivos e diretórios ignorados pelo Git
+# ==========================================================
+
+# --- Configurações sensíveis (credenciais) ---
+# Este projeto NÃO usa .env. As credenciais ficam em um arquivo
+# de configuração local gerado na instalação, que NUNCA deve ser versionado.
+/config/local.php
+/config/installed.lock
+
+# --- Logs ---
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# --- Cache ---
+/storage/cache/*
+!/storage/cache/.gitkeep
+
+# --- Uploads enviados pelos usuários ---
+/public/uploads/*
+!/public/uploads/.gitkeep
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+
+# --- Backups ---
+/storage/backups/*
+*.sql.gz
+*.bak
+
+# --- Dependências (caso venham a existir) ---
+/vendor/
+/node_modules/
+
+# --- Arquivos temporários / sistema ---
+*.log
+*.tmp
+*.cache
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- IDEs / editores ---
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~

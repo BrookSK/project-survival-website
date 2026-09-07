@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * MODELO de configuração local (config/local.php).
+ *
+ * Este arquivo é um EXEMPLO. Ele é versionado no Git apenas como referência.
+ *
+ * O arquivo REAL — config/local.php — é gerado automaticamente pelo instalador
+ * e contém credenciais sensíveis. Ele NUNCA deve ser versionado (está no .gitignore).
+ *
+ * Caso precise configurar manualmente, copie este arquivo para config/local.php
+ * e ajuste os valores.
+ *
+ * IMPORTANTE: nenhuma credencial deve ser escrita diretamente em outros arquivos
+ * de código. Toda informação sensível de infraestrutura vive aqui.
+ */
+
+return [
+    // Ambiente: 'development' ou 'production'
+    'environment' => 'production',
+
+    // Chave de aplicação usada para assinar tokens/cookies. Deve ser aleatória e única.
+    // O instalador gera automaticamente uma chave segura.
+    'app_key' => 'CHANGE_ME_TO_A_RANDOM_64_CHAR_STRING',
+
+    // Conexão com o banco de dados
+    'database' => [
+        'driver'    => 'mysql',
+        'host'      => '127.0.0.1',
+        'port'      => 3306,
+        'name'      => 'game_website',
+        'user'      => 'root',
+        'password'  => '',
+        'charset'   => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+    ],
+];

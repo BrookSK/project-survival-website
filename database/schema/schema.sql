@@ -1,0 +1,53 @@
+-- =====================================================================
+-- SCHEMA CONSOLIDADO (DOCUMENTAÇÃO / REFERÊNCIA)
+-- =====================================================================
+-- Este arquivo é um retrato consolidado do estado atual do banco,
+-- gerado a partir das migrations em database/migrations/.
+--
+-- FONTE DE VERDADE PARA EXECUÇÃO: as migrations numeradas.
+-- Este arquivo NÃO é executado pelo runner de migrations; serve apenas
+-- como referência rápida de leitura para desenvolvedores.
+--
+-- REGRA CRÍTICA: nunca altere migrations já criadas. Para mudar o banco,
+-- crie uma NOVA migration. Ao adicionar uma migration que altere o schema,
+-- atualize (recrie) este arquivo consolidado para refletir o estado final.
+--
+-- Migrations refletidas: 001 a 014.
+-- =====================================================================
+
+-- migrations ..................... controle de execução das migrations
+-- users .......................... usuários administrativos
+-- roles / permissions ............ RBAC (perfis e permissões)
+-- role_permissions / user_roles .. junções N:N do RBAC
+-- settings ....................... configurações administráveis (substitui .env)
+-- pages / page_meta .............. páginas de conteúdo + SEO
+-- news_categories / news / news_category_relations ... blog de notícias
+-- faq_categories / faqs .......... perguntas frequentes
+-- gallery_albums / gallery_items . galeria de mídia
+-- menus / menu_items ............. menus configuráveis (header/footer)
+-- banners ........................ banners/slides gerenciáveis
+-- contact_messages ............... mensagens do formulário de contato
+-- audit_logs ..................... auditoria de ações administrativas
+-- login_attempts ................. proteção contra brute force
+-- password_resets ................ tokens de recuperação de senha
+--
+-- Consulte database/migrations/*.sql para a definição exata (DDL) de cada
+-- tabela, incluindo colunas, índices e chaves estrangeiras.
+
+-- =====================================================================
+-- EVOLUÇÃO (Prompt 2) — migrations 015 a 025
+-- =====================================================================
+-- 015 banners: + image_mobile
+-- 016 home_sections ............. seções editáveis da Home
+-- 017 news: status +'scheduled', + is_featured, + deleted_at (soft delete) + índices
+-- 018 news_categories: + image, + is_active
+-- 019 pages: status +'archived', + featured_image, + deleted_at (soft delete)
+-- 020 media ..................... biblioteca de mídia (variantes, dimensões, alt)
+-- 021 videos .................... vídeos/trailers (youtube/vimeo/external)
+-- 022 social_links .............. redes sociais gerenciáveis
+-- 023 email_templates ........... templates de e-mail com placeholders
+-- 024 admin_notifications ....... notificações do painel
+-- 025 redirects ................. redirecionamentos administráveis (SEO)
+--
+-- Seeds adicionais: 006 permissions_v2, 007 settings_v2, 008 home_sections,
+-- 009 email_templates, 010 legal_pages.

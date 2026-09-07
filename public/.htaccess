@@ -1,0 +1,20 @@
+# Front controller para quando o DocumentRoot aponta diretamente para /public.
+RewriteEngine On
+
+# Se o arquivo ou diretório existir, entrega direto (assets, uploads, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Caso contrário, envia tudo para o front controller
+RewriteRule ^ index.php [L]
+
+# Headers de segurança básicos (reforço ao que a aplicação já envia)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Impede listagem de diretórios
+Options -Indexes

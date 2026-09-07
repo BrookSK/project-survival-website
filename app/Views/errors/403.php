@@ -1,0 +1,1 @@
+<?php $status = 403; include __DIR__ . '/generic.php';
