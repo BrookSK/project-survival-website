@@ -49,7 +49,7 @@ define('LOCAL_CONFIG_FILE', CONFIG_PATH . '/local.php');
 define('INSTALL_LOCK_FILE', CONFIG_PATH . '/installed.lock');
 
 // Versão da aplicação
-define('APP_VERSION', '2.3.0');
+define('APP_VERSION', '2.4.0');
 
 // Ambientes válidos
 define('ENV_DEVELOPMENT', 'development');

@@ -32,6 +32,8 @@ class SettingController extends Controller
         'notifications'  => 'Notificações',
         'game_api'       => 'API do Jogo',
         'game_api_cache' => 'Cache da API',
+        'releases'       => 'Releases / Download',
+        'website_urls'   => 'URLs do site',
         'privacy'        => 'Privacidade',
         'payments'       => 'Pagamentos / Loja',
     ];

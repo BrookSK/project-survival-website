@@ -47,6 +47,43 @@ class GameApiConfig
     }
 
     /**
+     * Versão da API informada no painel (apenas rótulo/observabilidade; a
+     * autoridade real é o header `X-API-Version` da resposta).
+     */
+    public static function apiVersion(): string
+    {
+        return (string) SettingsService::get('game_api_version', 'v1');
+    }
+
+    /**
+     * Modo de manutenção da integração (desliga a experiência dependente da
+     * API sem apagar a configuração). Editorial/administrável.
+     */
+    public static function maintenance(): bool
+    {
+        return (bool) SettingsService::get('game_api_maintenance', false);
+    }
+
+    /**
+     * Canal público de release usado pelo site (stable por padrão).
+     * beta/dev nunca são promovidos publicamente por padrão.
+     */
+    public static function releaseChannel(): string
+    {
+        $c = strtolower(trim((string) SettingsService::get('release_channel', 'stable')));
+        return in_array($c, ['stable', 'beta', 'dev'], true) ? $c : 'stable';
+    }
+
+    /**
+     * TTL (segundos) do cache de release. 0 = sem expiração (usa fallback stale).
+     */
+    public static function releaseCacheTtl(): int
+    {
+        $ttl = (int) SettingsService::get('release_cache_ttl', 900);
+        return max(0, min($ttl, 86400));
+    }
+
+    /**
      * TTL (segundos) de um domínio de cache: news|events|store|categories|config.
      */
     public static function cacheTtl(string $kind): int

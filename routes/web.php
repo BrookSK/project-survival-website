@@ -52,6 +52,13 @@ $router->group(['middleware' => [RedirectMiddleware::class, MaintenanceMiddlewar
     $router->post('/criar-conta', 'Site\\AuthController@register');
     $router->post('/logout', 'Site\\AuthController@logout');
 
+    // Download público (rota permanente + página). O botão nunca hardcoda versão/URL.
+    $router->get('/download', 'Site\\DownloadController@index');
+    $router->get('/download/project-survival', 'Site\\DownloadController@redirectToInstaller');
+
+    // Atualizações (versão atual + changelog/notes oficiais + novidades).
+    $router->get('/updates', 'Site\\UpdatesController@index');
+
     // Loja (catálogo público da API; compra apenas inicia pedido pendente).
     $router->get('/loja', 'Site\\StoreController@index');
     $router->post('/loja/comprar', 'Site\\StoreController@purchase');

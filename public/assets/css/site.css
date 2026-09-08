@@ -462,3 +462,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
     .account-nav { position: static; flex-direction: row; flex-wrap: wrap; }
     .account-nav a { border-left: none; }
 }
+
+/* ============================================================
+   Página de download (/download)
+   ============================================================ */
+.download-hero { text-align: center; }
+.download-tagline { font-size: 1.15rem; color: var(--text-muted, #aeb6c7); margin: .25rem 0 1.25rem; }
+.download-cta { font-size: 1.05rem; padding: .9rem 2rem; }
+.download-meta { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+.download-meta-item { color: var(--text-muted, #aeb6c7); font-size: .95rem; }
+.download-meta-item strong { color: var(--text, #e7ecf5); }
+.download-stale { margin-top: .75rem; font-size: .85rem; }
+.download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+.download-steps { margin: 0; padding-left: 1.25rem; display: grid; gap: .5rem; }
+.download-integrity { padding-top: 0; }
+.download-hash summary { cursor: pointer; font-weight: 600; }
+.download-hash-value { display: block; margin-top: .5rem; padding: .6rem .75rem; background: rgba(0,0,0,.25);
+    border-radius: 6px; word-break: break-all; font-size: .85rem; }
+.download-support { text-align: center; }
+@media (max-width: 640px) {
+    .download-meta { gap: .75rem; flex-direction: column; align-items: center; }
+}

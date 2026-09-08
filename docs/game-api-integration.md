@@ -10,10 +10,10 @@ detalhado está em [`docs/api/commercial-integration.md`](api/commercial-integra
 | ---------------- | --------- |
 | Catálogo, preço/moeda oficiais, `owned` | **API do jogo** |
 | Entitlement/inventário (conceder/revogar) | **API do jogo (exclusivo)** |
-| Pedido, snapshot de preço, transações, webhooks, cupons | **Site (PHP)** |
-| Comunicação com o gateway (Mercado Pago) | **Site** |
-| Confirmação do estado do pagamento | **Site** consulta o gateway |
-| Solicitação de concessão/revogação | **Site → API do jogo** (service account) |
+| Pedido, snapshot de preço, transações, cupons | **Site (PHP)** |
+| Checkout e comunicação com o provedor de pagamento | **Site** |
+| Webhook de pagamento + **concessão** de entitlement | **API do jogo** (`POST /payments/webhooks/:provider`) |
+| Confirmação de posse | **Site** consulta `GET /player/entitlements` |
 
 ## O que a API do jogo já expõe (consumido hoje)
 
@@ -21,47 +21,47 @@ detalhado está em [`docs/api/commercial-integration.md`](api/commercial-integra
 - `GET /player/entitlements` — o que o jogador possui (fonte de verdade).
 - `POST /store/purchase` — inicia um pedido `pending` (não cobra, não concede).
 
-Já existe (mas ainda não usado pela camada comercial do site):
-
-- `POST /admin/entitlements/grant` — concede entitlement (token de admin, RBAC
-  `SUPPORT`/`SUPER_ADMIN`).
-- `POST /payments/webhooks/:provider` — webhook **stub** (valida assinatura; sem
-  assinatura válida, nada é concedido).
-
-## Concessão server-to-server (o que falta definir)
+## Concessão (modelo oficial: webhook da Game API)
 
 Verificado contra o repositório da API do jogo
-(`BrookSK/project-survival-game`, RC1). Hoje a API concede itens via
-`POST /admin/entitlements/grant` (RBAC: papel `SUPPORT`/`SUPER_ADMIN`, token de
-admin) e tem um webhook **stub** (`POST /payments/webhooks/:provider`). **Não**
-existem endpoints `/commerce/*` nem service account de escopo comercial.
+(`BrookSK/project-survival-game`, `docs/API_SITE_CONTRACT.md` /
+`INTEGRATION_SITE.md`). O modelo **oficial** de concessão é:
 
-Há duas alternativas (o site suporta ambas):
+```
+SITE → CHECKOUT → PROVEDOR DE PAGAMENTO → WEBHOOK → GAME API → ENTITLEMENT → GAME
+```
 
-- **A (recomendada):** endpoints dedicados `POST /commerce/fulfillments`,
-  `GET /commerce/fulfillments/:ref` e `POST /commerce/refunds`, com service
-  account de escopo comercial e `Idempotency-Key`. É o que o adapter já consome.
-- **B (reutiliza o existente):** um usuário de serviço com papel `SUPPORT`
-  chamando `POST /admin/entitlements/grant`. Exige garantir idempotência no
-  servidor (ou consultar `GET /player/entitlements` antes de conceder) e dá ao
-  site um token de admin (escopo mais amplo).
+- `POST /payments/webhooks/:provider` (na **Game API**, autenticado por
+  `x-webhook-signature`): a API valida a assinatura, confirma o pedido e
+  **concede** o entitlement — de forma **idempotente** (`order_id` +
+  `provider_transaction_id`). Resposta:
+  `{ received, verified, confirmed, alreadyPaid, granted:[…] }`.
+- O **site não concede** itens. Ele orquestra o checkout, fala com o provedor de
+  pagamento e registra `order`/`payment`/timeline. A posse é confirmada
+  consultando `GET /player/entitlements`.
 
-Contrato completo (payloads, erros, idempotência e as duas alternativas) em
+No site isso é representado pelo modo de fulfillment `game_webhook`
+(`NullFulfillmentAdapter`), que é o **padrão**: não chama endpoint de concessão,
+apenas registra a delegação na timeline. Configurável em
+`fulfillment_mode` (setting).
+
+### Modo alternativo (opcional): `commerce_endpoint`
+
+Caso a Game API venha a expor um endpoint dedicado de concessão
+server-to-server, o site já tem a abstração (`GameFulfillmentService`,
+`Idempotency-Key = referência:produto`). **Não** deve ser ativado sem contrato
+oficial. Detalhes e payloads em
 [`docs/api/commercial-integration.md`](api/commercial-integration.md).
 
-## Autenticação server-to-server
+## Preço
 
-O site usa uma service account (não o token do jogador) configurada no painel
-(grupo `payments`): `game_api_service_client_id` e `game_api_service_secret`
-(segredo mascarado). Enviada como `X-Client-Id` + `Authorization: Bearer`.
-
-## Preço é sempre da API do jogo
-
-`ProductPricing` relê o produto ao vivo para obter preço/moeda oficiais no
-momento do pedido. Qualquer valor vindo do navegador é ignorado.
+O preço final cobrado é do **sistema comercial/pagamento do site** (a Game API
+não é autoridade sobre preço). O catálogo/produto (id, nome, tipo, raridade) vem
+da Game API; o navegador nunca define preço/total.
 
 ## Estado atual
 
-Enquanto os endpoints comerciais da API do jogo não existirem/estiverem
-configurados, os pedidos pagos ficam com entrega **pendente** (retry) e
-aparecem na Reconciliação. Nada é concedido de forma fictícia.
+A concessão acontece na Game API via webhook do provedor. O site exibe a posse a
+partir de `GET /player/entitlements` e nunca concede de forma fictícia. Se a
+integração estiver desligada/em manutenção, o site degrada com mensagens
+amigáveis, sem quebrar.

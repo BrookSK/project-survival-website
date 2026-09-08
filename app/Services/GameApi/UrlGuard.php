@@ -103,4 +103,68 @@ class UrlGuard
     {
         return rtrim(trim($url), '/');
     }
+
+    /**
+     * Extrai o host (minúsculo, sem porta) de uma URL, ou null se inválida.
+     */
+    public static function host(string $url): ?string
+    {
+        $parts = parse_url(trim($url));
+        if ($parts === false || empty($parts['host'])) {
+            return null;
+        }
+        return strtolower($parts['host']);
+    }
+
+    /**
+     * Valida uma URL de download antes de o servidor redirecionar para ela.
+     *
+     * Proteção contra SSRF/open-redirect: a URL vem da configuração/Game API
+     * (nunca de parâmetro do usuário). Exige http/https; em produção exige HTTPS
+     * e bloqueia hosts privados/reservados. Se `allowedHosts` for informada
+     * (allowlist), o host precisa constar nela (match exato ou subdomínio).
+     *
+     * @param string   $url          URL a validar (installer/download oficial).
+     * @param string[] $allowedHosts Hosts permitidos (ex.: derivados da base URL/CDN).
+     */
+    public static function isSafeDownloadUrl(string $url, array $allowedHosts = []): bool
+    {
+        $url = trim($url);
+        if ($url === '') {
+            return false;
+        }
+        $parts = parse_url($url);
+        if ($parts === false || empty($parts['scheme']) || empty($parts['host'])) {
+            return false;
+        }
+        $scheme = strtolower($parts['scheme']);
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return false;
+        }
+
+        $isProd = Config::isProduction();
+        if ($isProd && $scheme !== 'https') {
+            return false;
+        }
+        if ($isProd && self::isPrivateHost($parts['host'])) {
+            return false;
+        }
+
+        // Allowlist opcional: host precisa bater exatamente ou ser subdomínio.
+        if ($allowedHosts !== []) {
+            $host = strtolower($parts['host']);
+            foreach ($allowedHosts as $allowed) {
+                $allowed = strtolower(trim((string) $allowed));
+                if ($allowed === '') {
+                    continue;
+                }
+                if ($host === $allowed || str_ends_with($host, '.' . $allowed)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
 }

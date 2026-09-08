@@ -132,6 +132,8 @@ if ($playerLoggedIn) {
                 <a href="<?= e($item['url']) ?>" target="<?= e($item['target']) ?>"
                    class="<?= $currentUri === $item['url'] ? 'active' : '' ?>"><?= e($item['label']) ?></a>
             <?php endforeach; ?>
+            <a href="/download" class="<?= (strpos($currentUri, '/download') === 0) ? 'active' : '' ?>">Baixar</a>
+            <a href="/updates" class="<?= (strpos($currentUri, '/updates') === 0) ? 'active' : '' ?>">Atualizações</a>
         </nav>
         <div class="header-cta">
             <?php if ($gameApiOn): ?>
@@ -168,6 +170,8 @@ if ($playerLoggedIn) {
     <?php foreach ($headerItems as $item): ?>
         <a href="<?= e($item['url']) ?>" target="<?= e($item['target']) ?>"><?= e($item['label']) ?></a>
     <?php endforeach; ?>
+    <a href="/download">Baixar</a>
+    <a href="/updates">Atualizações</a>
     <?php if ($gameApiOn): ?>
         <a href="/loja">Loja</a>
         <?php if ($playerLoggedIn): ?>

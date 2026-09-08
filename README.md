@@ -1,10 +1,19 @@
-# Website Oficial do Jogo
+# Site Público do Project Survival
 
-Website oficial de um jogo, desenvolvido em **PHP puro com arquitetura MVC própria**, sem frameworks pesados. Inclui site público com identidade visual de jogo, painel administrativo completo, CMS modular, notícias com agendamento/destaque, biblioteca de mídia com otimização de imagens, vídeos, galeria com lightbox, FAQ, contato, e-mail com templates, SEO, redirects, cache, controle de acesso por permissões, auditoria, notificações e um instalador guiado.
+**Este projeto é o site público do Project Survival.** Desenvolvido em **PHP puro
+com arquitetura MVC própria**, sem frameworks pesados. Inclui site público com
+identidade visual de jogo, **download oficial** e página de atualizações, loja e
+conta integradas à Game API, painel administrativo completo, CMS modular,
+notícias, mídia, vídeos, galeria, FAQ, contato, e-mail, SEO, redirects, cache,
+permissões, auditoria, privacidade/LGPD, camada comercial e um instalador guiado.
 
-> Este repositório contém **apenas o website**. O jogo em si é mantido em um repositório separado.
+> Este repositório contém **apenas o site**. O **jogo**, a **Game API**, o
+> **launcher/updater** e a **infraestrutura de releases** são mantidos em um
+> repositório separado (`BrookSK/project-survival-game`). O site é um
+> **consumidor** dos contratos oficiais: não duplica contas, catálogo,
+> entitlements nem releases, e não concede itens.
 
-**Versão atual: 2.2.0** — veja o [CHANGELOG](CHANGELOG.md).
+**Versão atual: 2.4.0** — veja o [CHANGELOG](CHANGELOG.md).
 
 ---
 
@@ -17,6 +26,8 @@ Website oficial de um jogo, desenvolvido em **PHP puro com arquitetura MVC próp
 - [Migrations](#migrations)
 - [Estrutura de diretórios](#estrutura-de-diretórios)
 - [Rotas principais](#rotas-principais)
+- [Integração com a Game API](#integração-com-a-game-api)
+- [Download e releases](#download-e-releases)
 - [Área administrativa](#área-administrativa)
 - [E-mail (SMTP)](#e-mail-smtp)
 - [Uploads](#uploads)
@@ -319,6 +330,30 @@ Detalhes, matriz de endpoints e troubleshooting em
 Para desenvolvimento local: suba a API do jogo (`npm run dev`, porta 4000) e o
 website apontando o DocumentRoot para `public/`; ative a integração no painel e
 use **Testar conexão**.
+
+## Download e releases
+
+O site oferece o **download oficial** do jogo consumindo a infraestrutura de
+releases da Game API — sem versão nem URL hardcoded:
+
+- **`/download`** — página com botão "Baixar Project Survival", versão,
+  plataforma, tamanho, SHA-256, requisitos e instruções.
+- **`/download/project-survival`** — rota **permanente**: resolve a release atual
+  e redireciona ao instalador oficial (validação anti-SSRF/open-redirect). O
+  botão do site não muda a cada versão.
+- **`/updates`** — versão atual, changelog/novidades e explicação de que as
+  atualizações do jogo são automáticas pelo **launcher/updater**.
+
+Fonte oficial: `GET /public/download/{channel}` (canais `stable`/`beta`/`dev`).
+As informações são cacheadas (TTL configurável) com fallback offline-first — se
+a API cair, a página não quebra e nunca inventa versão. O site **não** publica
+releases nem hospeda o instalador. Configuração em **Admin → Configurações →
+Releases / Download** e **URLs do site**.
+
+Detalhes: [docs/DOWNLOAD.md](docs/DOWNLOAD.md),
+[docs/GAME_API_INTEGRATION.md](docs/GAME_API_INTEGRATION.md),
+[docs/SITE_GAME_CONTRACT.md](docs/SITE_GAME_CONTRACT.md),
+[docs/SITE_HANDOFF.md](docs/SITE_HANDOFF.md).
 
 ## Loja & Pagamentos
 

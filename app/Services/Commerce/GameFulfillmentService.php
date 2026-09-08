@@ -25,9 +25,16 @@ use App\Services\Payments\PaymentConfig;
  *     `pending` com retry (backoff). NUNCA simula sucesso.
  *   - Falhas DEFINITIVAS (400/404/409/422) marcam `failed` sem retry.
  *
- * Endpoint consumido (a implementar no lado Node): POST /commerce/fulfillments.
+ * Modo `commerce_endpoint` (OPCIONAL): usa um endpoint dedicado de concessão
+ * server-to-server. Esse endpoint NÃO faz parte do contrato oficial atual da
+ * Game API (o modelo oficial concede via webhook do provedor -> Game API, ver
+ * NullFulfillmentAdapter e docs/api/commercial-integration.md). Esta classe é
+ * uma abstração preparada para quando/se a Game API expuser tal endpoint —
+ * nunca deve ser o modo padrão sem contrato oficial. Não inventa produção.
+ *
+ * Endpoint consumido neste modo: POST /commerce/fulfillments (a implementar).
  */
-class GameFulfillmentService
+class GameFulfillmentService implements GameFulfillmentInterface
 {
     private const ENDPOINT = '/commerce/fulfillments';
 
@@ -46,6 +53,11 @@ class GameFulfillmentService
         $this->fulfillments = $fulfillments ?? new Fulfillment();
         $this->orders = $orders ?? new Order();
         $this->events = $events ?? new OrderEvent();
+    }
+
+    public function mode(): string
+    {
+        return 'commerce_endpoint';
     }
 
     /**

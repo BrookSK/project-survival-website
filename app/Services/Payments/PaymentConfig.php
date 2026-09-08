@@ -71,6 +71,19 @@ class PaymentConfig
 
     // --- Política de fulfillment/refund ---
 
+    /**
+     * Modo de fulfillment:
+     *   - `game_webhook` (OFICIAL, padrão): a Game API concede via webhook do
+     *     provedor de pagamento. O site NÃO concede.
+     *   - `commerce_endpoint`: usa um endpoint dedicado da Game API (só se/quando
+     *     existir contrato oficial). Ver docs/api/commercial-integration.md.
+     */
+    public static function fulfillmentMode(): string
+    {
+        $m = strtolower(trim((string) SettingsService::get('fulfillment_mode', 'game_webhook')));
+        return $m === 'commerce_endpoint' ? 'commerce_endpoint' : 'game_webhook';
+    }
+
     public static function fulfillmentMaxAttempts(): int
     {
         $n = (int) SettingsService::get('fulfillment_max_attempts', 8);

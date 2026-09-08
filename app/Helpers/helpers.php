@@ -49,6 +49,41 @@ if (!function_exists('asset')) {
     }
 }
 
+if (!function_exists('game_url')) {
+    /**
+     * URL pública configurável do site/jogo (grupo de settings `website_urls`),
+     * com fallback para uma rota interna quando não preenchida no painel.
+     *
+     * NUNCA hardcode domínios nas views: use game_url('download'), etc. As URLs
+     * são combinadas com a equipe do jogo (launcher/site apontam para as mesmas
+     * páginas).
+     *
+     * @param string $name  website|download|store|account|support|privacy|terms
+     */
+    function game_url(string $name): string
+    {
+        $map = [
+            'website'  => ['site_website_url', ''],
+            'download' => ['site_download_url', 'download'],
+            'store'    => ['site_store_url', 'loja'],
+            'account'  => ['site_account_url', 'conta'],
+            'support'  => ['site_support_url', 'contato'],
+            'privacy'  => ['site_privacy_url', 'privacidade'],
+            'terms'    => ['site_terms_url', 'termos'],
+        ];
+        if (!isset($map[$name])) {
+            return url();
+        }
+        [$key, $fallbackPath] = $map[$name];
+        $configured = trim((string) setting($key, ''));
+        // Só aceita URL absoluta http(s) configurada; caso contrário usa a rota interna.
+        if ($configured !== '' && preg_match('#^https?://#i', $configured)) {
+            return $configured;
+        }
+        return url($fallbackPath);
+    }
+}
+
 if (!function_exists('uploaded')) {
     /**
      * URL para um arquivo em public/uploads.

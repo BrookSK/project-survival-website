@@ -5,6 +5,56 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 O formato segue, de forma pragmática, o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e o versionamento adota [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.4.0] - 2026-09-07
+
+Integração com a infraestrutura oficial de distribuição/download/releases do
+Project Survival. O site passa a ser um **consumidor** dos contratos públicos da
+Game API (repositório do jogo em `BrookSK/project-survival-game`): download,
+versão, requisitos, status e canal de release. Sem `.env`; tudo configurável no
+painel. Nada de versão/URL hardcoded.
+
+### Adicionado
+
+- **Download público** (`/download`): página com botão "Baixar Project Survival",
+  versão, plataforma, tamanho, SHA-256, requisitos, passo a passo de instalação e
+  aviso de atualização automática pelo launcher. SEO (canonical/OG/Twitter/JSON-LD
+  `SoftwareApplication`). Fallback amigável quando a release está indisponível.
+- **Rota permanente** `/download/project-survival`: resolve a release atual e
+  redireciona (302) ao instalador oficial. Não muda a cada versão — o site não
+  fixa versão nem URL no código. A URL vem sempre da Game API/config e é validada
+  (anti-SSRF/open-redirect, HTTPS em produção, allowlist de hosts).
+- **`GameReleaseService` + `ReleaseInformation`**: consomem `GET /public/download/{channel}`
+  (e `GET /public/releases/{channel}`) com cache (TTL configurável) e fallback
+  stale offline-first. Canais `stable`/`beta`/`dev`.
+- **Página de atualizações** (`/updates`): versão atual, changelog/notas e
+  novidades oficiais; explica que o launcher atualiza o jogo automaticamente.
+- **Status do jogo** (`GameStatusService`): online/manutenção com cache curto
+  (não faz health-check a cada requisição).
+- **Configuração no Admin** (sem `.env`): grupos `releases` (canal, TTL, allowlist
+  de hosts) e `URLs do site` (website/download/store/account/support/privacy/terms),
+  além de versão/manutenção da API. Painel **Integrações** mostra canal, versão,
+  release atual (com SHA-256) e URLs configuradas; limpeza de cache por escopo
+  (inclui release/status). Helper `game_url()` centraliza as URLs.
+
+### Alterado
+
+- **Modelo de fulfillment alinhado ao contrato oficial**: a concessão de
+  entitlement é feita pela **Game API** via webhook do provedor de pagamento
+  (`POST /payments/webhooks/:provider`, idempotente). Introduzido
+  `GameFulfillmentInterface` com o modo padrão `game_webhook`
+  (`NullFulfillmentAdapter`: o site **não** concede itens, apenas registra a
+  delegação e confirma posse via `GET /player/entitlements`). O adapter de
+  endpoint dedicado (`commerce_endpoint`) permanece como abstração documentada,
+  usável só se/quando a Game API expuser tal contrato. Nenhuma concessão de item
+  pelo site.
+
+### Segurança
+
+- Redirect de download validado por `UrlGuard::isSafeDownloadUrl` (esquema
+  http/https, HTTPS obrigatório em produção, bloqueio de hosts privados,
+  allowlist opcional). A rota permanente nunca aceita URL de parâmetro do
+  usuário. Segredos nunca expostos/logados; cache apenas de dados públicos.
+
 ## [2.3.0] - 2026-09-07
 
 Camada comercial ponta a ponta no lado do site (PHP): checkout, pagamentos via

@@ -29,7 +29,7 @@ use App\Services\Payments\PaymentStatus;
 class WebhookProcessor
 {
     private PaymentService $payments;
-    private GameFulfillmentService $fulfillment;
+    private GameFulfillmentInterface $fulfillment;
     private WebhookEvent $webhooks;
     private Order $orders;
     private PaymentTransaction $transactions;
@@ -37,7 +37,7 @@ class WebhookProcessor
 
     public function __construct(
         ?PaymentService $payments = null,
-        ?GameFulfillmentService $fulfillment = null,
+        ?GameFulfillmentInterface $fulfillment = null,
         ?WebhookEvent $webhooks = null,
         ?Order $orders = null,
         ?PaymentTransaction $transactions = null,
@@ -45,7 +45,9 @@ class WebhookProcessor
         ?HttpClient $http = null
     ) {
         $this->payments = $payments ?? new PaymentService(null, $http);
-        $this->fulfillment = $fulfillment ?? new GameFulfillmentService($http);
+        // Modo oficial (game_webhook): a concessão é da Game API — o site não
+        // concede. Ver FulfillmentResolver / docs/api/commercial-integration.md.
+        $this->fulfillment = $fulfillment ?? FulfillmentResolver::resolve($http);
         $this->webhooks = $webhooks ?? new WebhookEvent();
         $this->orders = $orders ?? new Order();
         $this->transactions = $transactions ?? new PaymentTransaction();

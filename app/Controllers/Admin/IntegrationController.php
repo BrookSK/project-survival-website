@@ -11,6 +11,8 @@ use App\Services\GameApi\GameApiConfig;
 use App\Services\GameApi\GameConfigService;
 use App\Services\GameApi\GameContentService;
 use App\Services\GameApi\GameHealthService;
+use App\Services\GameApi\GameReleaseService;
+use App\Services\GameApi\GameStatusService;
 use App\Services\GameApi\GameStoreService;
 use App\Services\GameApi\UrlGuard;
 use App\Services\SettingsService;
@@ -46,14 +48,35 @@ class IntegrationController extends Controller
             'error'      => $health['error'],
         ], 0);
 
+        // Estado da release (para diagnóstico de download). Tolerante a falha.
+        $release = null;
+        try {
+            $release = (new GameReleaseService())->latest();
+        } catch (\Throwable $e) {
+            $release = null;
+        }
+
         $this->viewAdmin('admin.integration.index', [
             'title'       => 'Integração com a API do Jogo',
             'breadcrumbs' => [['label' => 'Integrações'], ['label' => 'API do Jogo']],
             'enabled'     => GameApiConfig::isEnabled(),
+            'maintenance' => GameApiConfig::maintenance(),
             'baseUrl'     => GameApiConfig::baseUrl(),
             'clientId'    => GameApiConfig::clientId(),
             'timeout'     => GameApiConfig::timeout(),
             'cacheEnabled'=> GameApiConfig::cacheEnabled(),
+            'apiVersion'  => GameApiConfig::apiVersion(),
+            'releaseChannel' => GameApiConfig::releaseChannel(),
+            'release'     => $release,
+            'websiteUrls' => [
+                'website'  => game_url('website'),
+                'download' => game_url('download'),
+                'store'    => game_url('store'),
+                'account'  => game_url('account'),
+                'support'  => game_url('support'),
+                'privacy'  => game_url('privacy'),
+                'terms'    => game_url('terms'),
+            ],
             'health'      => $health,
         ]);
     }
@@ -143,12 +166,20 @@ class IntegrationController extends Controller
             case 'config':
                 GameConfigService::flushCache();
                 break;
+            case 'release':
+                GameReleaseService::flushCache();
+                break;
+            case 'status':
+                GameStatusService::flushCache();
+                break;
             case 'all':
             default:
                 $scope = 'all';
                 GameContentService::flushCache();
                 GameStoreService::flushCache();
                 GameConfigService::flushCache();
+                GameReleaseService::flushCache();
+                GameStatusService::flushCache();
                 break;
         }
 
