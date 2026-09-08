@@ -47,6 +47,19 @@ Fonte: `docs/game-api.md`. Base: `/api/v1`.
 concessão. A concessão real depende dos endpoints da seção 4, que ainda não
 existem.
 
+**Verificado contra o repositório da Game API** (`BrookSK/project-survival-game`,
+RC1 — `docs/api/API.md` + `openapi.yaml`). Além das rotas acima, a API já possui:
+
+- `POST /admin/entitlements/grant` — **concede** um entitlement a um jogador.
+  É protegido por RBAC (papel `SUPPORT` ou `SUPER_ADMIN`) e usa token de
+  administrador. Hoje é o **único** mecanismo real de concessão server-to-server.
+- `POST /payments/webhooks/:provider` — **stub**: valida a assinatura do
+  provedor; sem assinatura válida, nada é concedido. Não confirma pagamento.
+
+Ainda **não existem** na API: endpoints `/commerce/*` (fulfillment/refund
+comerciais) nem uma service account com *escopo comercial dedicado*. Por isso a
+seção 8 oferece **duas alternativas** de implementação.
+
 ---
 
 ## 3. Autenticação server-to-server (service account)
@@ -239,17 +252,51 @@ testes com `MockHttpClient`/mock de gateway.
 ## 8. Pendências do lado da Game API (Node)
 
 Para a integração comercial ficar completa de ponta a ponta, o repositório da
-Game API precisa implementar:
+Game API precisa expor um caminho de concessão/estorno server-to-server. Há
+**duas alternativas** — o site suporta ambas com ajuste mínimo:
+
+### Alternativa A — endpoints comerciais dedicados (recomendado)
 
 - [ ] `POST /commerce/fulfillments` (idempotente por `Idempotency-Key`).
 - [ ] `GET /commerce/fulfillments/:order_reference`.
 - [ ] `POST /commerce/refunds` (revoke/keep, idempotente).
-- [ ] Autenticação de **service account** (client/secret dedicados ao site) com
-      escopo comercial.
+- [ ] Service account com **escopo comercial** dedicado (não usa RBAC de admin).
 - [ ] (Opcional) `POST /commerce/orders` para reserva/validação.
-- [ ] Atualizar `docs/api/API.md` e `openapi.yaml` da Game API com o acima.
 
-Enquanto essas pendências não forem entregues, o site mantém os pagamentos
-registrados e os fulfillments em `pending` com retry — **sem conceder itens** —,
-e o painel administrativo mostra esses pedidos na **Reconciliação** (pago sem
-fulfillment) para reprocessamento assim que os endpoints existirem.
+Vantagem: escopo mínimo (só conceder/revogar), idempotência nativa por
+`Idempotency-Key`, contrato desenhado para o site. É o que o
+`GameFulfillmentService` já consome hoje (`POST /commerce/fulfillments` e
+`POST /commerce/refunds`).
+
+### Alternativa B — reutilizar o que já existe (`/admin/*`)
+
+A API RC1 já concede via `POST /admin/entitlements/grant` (RBAC: papel
+`SUPPORT` ou `SUPER_ADMIN`). Nesse caminho:
+
+- [ ] Criar um **usuário de serviço** (papel `SUPPORT`) para o site; o site
+      autentica em `POST /admin/login` e usa o token de admin.
+- [ ] O site chama `POST /admin/entitlements/grant` para conceder e uma rota
+      equivalente de revogação para estorno.
+- [ ] Como esse endpoint não expõe `Idempotency-Key`, a idempotência precisa ser
+      garantida no servidor (ex.: por `order_reference + product_id`) ou o site
+      consulta `GET /player/entitlements` antes de conceder.
+
+Ajuste no site: apontar `GameFulfillmentService` para `/admin/entitlements/grant`
+(o restante — estados, retry, reconciliação — permanece igual). Menos ideal
+porque dá ao site um token de admin (escopo amplo) em vez de um escopo comercial
+restrito.
+
+### Comum às duas
+
+- [ ] Atualizar `docs/api/API.md` e `openapi.yaml` da Game API com o caminho
+      escolhido.
+
+Enquanto o caminho de concessão não for definido/configurado, o site mantém os
+pagamentos registrados e os fulfillments em `pending` com retry — **sem conceder
+itens** —, e o painel administrativo mostra esses pedidos na **Reconciliação**
+(pago sem fulfillment) para reprocessamento.
+
+> **Base:** verificado contra `BrookSK/project-survival-game` (RC1). O jogo é
+> Godot 4.7.2; a API é Node + Express + TypeScript em `api/`. RBAC atual:
+> `SUPER_ADMIN`, `CONTENT_MANAGER`, `SUPPORT` (jogadores, pedidos, entitlements
+> grant, resgate), `FINANCE`, `DEVELOPER`, `ANALYST`.

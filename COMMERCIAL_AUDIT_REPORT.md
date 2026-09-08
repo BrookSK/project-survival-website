@@ -109,17 +109,27 @@ jogo); sem tocar em serviços reais.
 
 ## 9. Pendências (lado da API do jogo — Node)
 
-Para a integração ficar completa de ponta a ponta:
+Verificado contra o repositório oficial `BrookSK/project-survival-game` (RC1:
+`docs/api/API.md` + `openapi.yaml`). Todos os endpoints consumidos hoje pelo
+site (`/store/*`, `/store/purchase`, `/player/entitlements`, `/me`, `/auth/*`)
+existem e batem com o contrato. `POST /store/purchase` fica `pending` e não
+concede — como assumido.
 
-- [ ] `POST /commerce/fulfillments` (idempotente).
-- [ ] `GET /commerce/fulfillments/:order_reference`.
-- [ ] `POST /commerce/refunds` (revoke/keep, idempotente).
-- [ ] Autenticação de service account com escopo comercial.
-- [ ] Atualizar `API.md`/`openapi.yaml` da API do jogo com o contrato.
+A concessão server-to-server ainda precisa ser definida. Duas alternativas
+(o site suporta ambas — ver `docs/api/commercial-integration.md` §8):
 
-Enquanto isso, o site opera com segurança: registra pagamentos, mantém entrega
-`pending` com retry e expõe os casos na Reconciliação. **Nada é concedido de
-forma fictícia.**
+- **A (recomendada):** `POST /commerce/fulfillments`, `GET /commerce/fulfillments/:ref`,
+  `POST /commerce/refunds` + service account de escopo comercial (idempotência
+  por `Idempotency-Key`). É o que o `GameFulfillmentService` já consome.
+- **B (reutiliza o existente):** usuário de serviço com papel `SUPPORT` chamando
+  `POST /admin/entitlements/grant` (endpoint que já existe na API RC1); exige
+  garantir idempotência no servidor e concede token de admin ao site.
+
+Em ambas: atualizar `API.md`/`openapi.yaml` da API do jogo.
+
+Enquanto o caminho não for definido/configurado, o site opera com segurança:
+registra pagamentos, mantém entrega `pending` com retry e expõe os casos na
+Reconciliação. **Nada é concedido de forma fictícia.**
 
 ## 10. Configuração necessária (painel, sem `.env`)
 

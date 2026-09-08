@@ -21,19 +21,32 @@ detalhado está em [`docs/api/commercial-integration.md`](api/commercial-integra
 - `GET /player/entitlements` — o que o jogador possui (fonte de verdade).
 - `POST /store/purchase` — inicia um pedido `pending` (não cobra, não concede).
 
-## O que a API do jogo precisa implementar (contrato)
+Já existe (mas ainda não usado pela camada comercial do site):
 
-Estes endpoints **ainda não existem** e são consumidos pelo adapter do site
-(mockados nos testes):
+- `POST /admin/entitlements/grant` — concede entitlement (token de admin, RBAC
+  `SUPPORT`/`SUPER_ADMIN`).
+- `POST /payments/webhooks/:provider` — webhook **stub** (valida assinatura; sem
+  assinatura válida, nada é concedido).
 
-- `POST /commerce/fulfillments` — concede os itens de um pedido pago
-  (idempotente por `Idempotency-Key`).
-- `GET /commerce/fulfillments/:order_reference` — consulta a concessão.
-- `POST /commerce/refunds` — revoga/estorna a concessão (política revoke/keep).
-- Autenticação de **service account** (client/secret dedicados ao site) com
-  escopo comercial.
+## Concessão server-to-server (o que falta definir)
 
-Consulte o contrato completo (payloads, códigos de erro, idempotência) em
+Verificado contra o repositório da API do jogo
+(`BrookSK/project-survival-game`, RC1). Hoje a API concede itens via
+`POST /admin/entitlements/grant` (RBAC: papel `SUPPORT`/`SUPER_ADMIN`, token de
+admin) e tem um webhook **stub** (`POST /payments/webhooks/:provider`). **Não**
+existem endpoints `/commerce/*` nem service account de escopo comercial.
+
+Há duas alternativas (o site suporta ambas):
+
+- **A (recomendada):** endpoints dedicados `POST /commerce/fulfillments`,
+  `GET /commerce/fulfillments/:ref` e `POST /commerce/refunds`, com service
+  account de escopo comercial e `Idempotency-Key`. É o que o adapter já consome.
+- **B (reutiliza o existente):** um usuário de serviço com papel `SUPPORT`
+  chamando `POST /admin/entitlements/grant`. Exige garantir idempotência no
+  servidor (ou consultar `GET /player/entitlements` antes de conceder) e dá ao
+  site um token de admin (escopo mais amplo).
+
+Contrato completo (payloads, erros, idempotência e as duas alternativas) em
 [`docs/api/commercial-integration.md`](api/commercial-integration.md).
 
 ## Autenticação server-to-server
