@@ -7,6 +7,7 @@ $active = $active ?? '';
 $items = [
     'overview'  => ['/conta', 'Visão geral'],
     'inventory' => ['/conta/inventario', 'Inventário'],
+    'orders'    => ['/conta/pedidos', 'Pedidos'],
     'redeem'    => ['/conta/resgatar', 'Resgatar código'],
     'store'     => ['/loja', 'Loja'],
     'security'  => ['/conta/seguranca', 'Segurança'],

@@ -320,6 +320,41 @@ Para desenvolvimento local: suba a API do jogo (`npm run dev`, porta 4000) e o
 website apontando o DocumentRoot para `public/`; ative a integração no painel e
 use **Testar conexão**.
 
+## Loja & Pagamentos
+
+Camada comercial ponta a ponta no lado do site: checkout, pagamentos via
+**Mercado Pago** (PIX e cartão), pedidos/transações/webhooks/cupons, painel
+administrativo, reconciliação e reembolso.
+
+Princípios (aplicados no código, não apenas documentados):
+
+- A **concessão de itens é sempre feita pela API do jogo** (autoridade). O site
+  nunca concede/revoga entitlement diretamente.
+- **Nada é simulado**: o status do pagamento vem sempre do gateway; a entrega,
+  da API do jogo. Sem resposta real, o pedido fica com entrega pendente.
+- O **navegador nunca define preço/status**: o preço é relido na API do jogo no
+  momento do pedido; o webhook consulta o gateway para o estado real.
+- **Idempotência** de webhook e de entrega (chaves UNIQUE): reenvios não duplicam
+  cobrança nem concessão.
+
+Configuração (sem `.env`) em **Admin → Configurações → Pagamentos / Loja**:
+gateway, ambiente, moeda, chaves do Mercado Pago e a service account da API do
+jogo (segredos mascarados). Permissões `store.*` controlam o painel; `store.refunds`
+não é concedida por padrão.
+
+> **Dependência da API do jogo:** os endpoints comerciais consumidos pelo site
+> (`/commerce/fulfillments`, `/commerce/refunds`) estão especificados em
+> [docs/api/commercial-integration.md](docs/api/commercial-integration.md) e
+> **precisam ser implementados na API do jogo**. Enquanto isso, pedidos pagos
+> ficam com entrega pendente e aparecem na Reconciliação.
+
+Detalhes: [docs/commercial-flow.md](docs/commercial-flow.md),
+[docs/payment-architecture.md](docs/payment-architecture.md),
+[docs/fulfillment.md](docs/fulfillment.md),
+[docs/reconciliation.md](docs/reconciliation.md),
+[docs/game-api-integration.md](docs/game-api-integration.md) e
+[COMMERCIAL_AUDIT_REPORT.md](COMMERCIAL_AUDIT_REPORT.md).
+
 ## Privacy & Compliance
 
 O site inclui uma camada de privacidade/LGPD que reflete o que o sistema

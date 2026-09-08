@@ -57,6 +57,10 @@ $router->group(['middleware' => [RedirectMiddleware::class, MaintenanceMiddlewar
     $router->post('/loja/comprar', 'Site\\StoreController@purchase');
     $router->get('/loja/produto/{id}', 'Site\\StoreController@show');
 
+    // Webhook do gateway de pagamento (SEM auth/CSRF; valida assinatura).
+    // Fica fora do grupo autenticado, pois quem chama é o gateway (server-to-server).
+    $router->post('/webhooks/payment/{provider}', 'Site\\PaymentWebhookController@handle');
+
     // Eventos ativos do jogo.
     $router->get('/eventos', 'Site\\EventsController@index');
 
@@ -78,6 +82,16 @@ $router->group(['middleware' => [RedirectMiddleware::class, MaintenanceMiddlewar
         $router->post('/conta/resgatar', 'Site\\AccountController@redeem');
         $router->get('/conta/seguranca', 'Site\\AccountController@securityForm');
         $router->post('/conta/seguranca', 'Site\\AccountController@changePassword');
+
+        // Checkout comercial (exige login do jogador).
+        $router->get('/checkout', 'Site\\CheckoutController@form');
+        $router->post('/checkout', 'Site\\CheckoutController@process');
+        $router->get('/checkout/{reference}/pagamento', 'Site\\CheckoutController@payment');
+        $router->get('/checkout/{reference}/status', 'Site\\CheckoutController@status');
+
+        // Pedidos do jogador.
+        $router->get('/conta/pedidos', 'Site\\OrderController@index');
+        $router->get('/conta/pedidos/{reference}', 'Site\\OrderController@show');
 
         // Central de privacidade do jogador
         $router->get('/conta/privacidade', 'Site\\AccountPrivacyController@index');

@@ -183,6 +183,21 @@ $router->group(['prefix' => '/admin', 'middleware' => [AuthMiddleware::class]], 
     $router->post('/integracoes/conexao', 'Admin\\IntegrationController@saveConnection');
     $router->post('/integracoes/cache/limpar', 'Admin\\IntegrationController@clearCache');
 
+    // Loja / Comercial
+    $router->get('/loja', 'Admin\\StoreController@dashboard');
+    $router->get('/loja/pedidos', 'Admin\\StoreController@orders');
+    $router->get('/loja/pedidos/{id}', 'Admin\\StoreController@orderShow');
+    $router->post('/loja/pedidos/{id}/reprocessar', 'Admin\\StoreController@reprocessFulfillment');
+    $router->post('/loja/pedidos/{id}/estornar', 'Admin\\StoreController@refund');
+    $router->get('/loja/transacoes', 'Admin\\StoreController@transactions');
+    $router->get('/loja/webhooks', 'Admin\\StoreController@webhooks');
+    $router->get('/loja/fulfillments', 'Admin\\StoreController@fulfillments');
+    $router->get('/loja/reconciliacao', 'Admin\\StoreController@reconciliation');
+    $router->get('/loja/cupons', 'Admin\\CouponController@index');
+    $router->post('/loja/cupons', 'Admin\\CouponController@store');
+    $router->post('/loja/cupons/{id}', 'Admin\\CouponController@update');
+    $router->post('/loja/cupons/{id}/excluir', 'Admin\\CouponController@destroy');
+
     // Privacidade — documentos legais versionados
     $router->get('/privacidade/documentos', 'Admin\\PolicyController@index');
     $router->get('/privacidade/documentos/{id}/historico', 'Admin\\PolicyController@history');

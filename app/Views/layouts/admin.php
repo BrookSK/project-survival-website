@@ -40,6 +40,16 @@ $navContent = [
 $navComm = [
     ['messages.view', '/admin/mensagens', 'Mensagens', '✉️'],
 ];
+$navStore = [
+    ['store.view',           '/admin/loja',                'Painel',        '📊'],
+    ['store.orders',         '/admin/loja/pedidos',        'Pedidos',       '🧾'],
+    ['store.payments',       '/admin/loja/transacoes',     'Transações',    '💳'],
+    ['store.webhooks',       '/admin/loja/webhooks',       'Webhooks',      '📡'],
+    ['store.fulfillment',    '/admin/loja/fulfillments',   'Fulfillments',  '📦'],
+    ['store.reconciliation', '/admin/loja/reconciliacao',  'Reconciliação', '⚖️'],
+    ['store.coupons',        '/admin/loja/cupons',         'Cupons',        '🎟️'],
+    ['store.settings',       '/admin/configuracoes?grupo=payments', 'Configurações', '⚙️'],
+];
 $navSystem = [
     ['social.view',   '/admin/redes-sociais', 'Redes sociais', '🔗'],
     ['users.view',    '/admin/usuarios',      'Usuários',      '👤'],
@@ -101,6 +111,11 @@ $renderNav = function (array $items) use ($isActive) {
 
             <div class="nav-group-title">Sistema</div>
             <?php $renderNav($navSystem); ?>
+
+            <?php if (has_permission('store.view')): ?>
+                <div class="nav-group-title">Loja</div>
+                <?php $renderNav($navStore); ?>
+            <?php endif; ?>
 
             <?php if (has_permission('privacy.view')): ?>
                 <div class="nav-group-title">Privacidade</div>

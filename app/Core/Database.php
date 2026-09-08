@@ -31,6 +31,15 @@ class Database
     }
 
     /**
+     * Injeta uma instância (usado APENAS em testes, para evitar conexão real).
+     * Nunca é chamado em produção.
+     */
+    public static function setInstance(?Database $instance): void
+    {
+        self::$instance = $instance;
+    }
+
+    /**
      * Estabelece a conexão PDO usando config/database.php.
      */
     private function connect(): void

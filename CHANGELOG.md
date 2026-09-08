@@ -5,6 +5,69 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 O formato segue, de forma pragmática, o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e o versionamento adota [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.3.0] - 2026-09-07
+
+Camada comercial ponta a ponta no lado do site (PHP): checkout, pagamentos via
+Mercado Pago, pedidos/transações/webhooks/cupons, painel administrativo,
+reconciliação e reembolso. A **concessão de itens é sempre feita pela API do
+jogo** (autoridade) — o site nunca concede/revoga entitlement diretamente e
+nunca simula pagamento, entrega ou aprovação.
+
+> **Nota de escopo:** o repositório da API do jogo (Node) não faz parte deste
+> workspace. Os endpoints comerciais que o site consome
+> (`/commerce/fulfillments`, `/commerce/refunds`) estão **especificados** em
+> `docs/api/commercial-integration.md` e ainda **precisam ser implementados no
+> lado da API do jogo**. Enquanto isso, pedidos pagos ficam com entrega
+> pendente (com retry) e aparecem na Reconciliação — nada é concedido de forma
+> fictícia.
+
+### Adicionado
+
+- **Migração `027_create_commerce_tables`**: `orders`, `order_items`,
+  `payment_transactions`, `webhook_events`, `order_events` (timeline),
+  `fulfillments`, `coupons`, `coupon_redemptions`. Dinheiro sempre em inteiro
+  (centavos); estados separados para pedido, pagamento e entrega.
+- **Abstração de gateway** (`app/Services/Payments`): `PaymentGatewayInterface`,
+  `MercadoPagoGateway` (PIX e cartão via tokenização hospedada, consulta de
+  pagamento, estorno, validação de assinatura de webhook HMAC-SHA256),
+  `NullGateway` (recusa segura) e `PaymentService` (orquestra transações).
+- **Adapter de concessão** (`GameFulfillmentService`): solicita a entrega à API
+  do jogo de forma **idempotente** (`Idempotency-Key = referência:produto`);
+  em indisponibilidade, mantém `pending` com backoff; nunca grava entitlement
+  local. `ProductPricing` obtém preço/moeda oficiais da API (o navegador nunca
+  define preço).
+- **Checkout** (`/checkout`): cria o pedido com snapshot de preço antes do
+  pagamento, valida produto/elegibilidade no servidor, aplica cupom validado no
+  backend, cria o pagamento no gateway (PIX copia-e-cola/QR ou cartão) e exige
+  aceite dos Termos de Compra. Chave de idempotência anti-duplo-clique.
+- **Webhook** (`/webhooks/payment/{provider}`): fora de auth/CSRF, valida
+  assinatura, é idempotente por `event_id`, **consulta o gateway para o estado
+  real** (nunca confia no payload) e dispara a concessão idempotente.
+- **Área do jogador**: `/conta/pedidos` e detalhe com timeline; estados
+  refletem a confirmação real; proteção anti-IDOR por jogador da sessão.
+- **Admin → Loja**: dashboard/saúde, pedidos (filtros/detalhe/timeline),
+  transações, log de webhooks, fulfillments, **reconciliação** (pago sem
+  entrega), reprocessar entrega, **reembolso** (permissão `store.refunds`, chama
+  o gateway e solicita revogação à API do jogo conforme política) e **cupons**.
+- **Configuração sem `.env`**: grupo `payments` (gateway, ambiente, moeda,
+  chaves do Mercado Pago e service account da API do jogo — segredos mascarados)
+  e permissões `store.*` (seeds 014/015).
+- **Documentação**: `docs/api/commercial-integration.md`,
+  `docs/commercial-flow.md`, `docs/payment-architecture.md`, `docs/fulfillment.md`,
+  `docs/reconciliation.md`, `docs/game-api-integration.md` e
+  `COMMERCIAL_AUDIT_REPORT.md`.
+
+### Segurança
+
+- Permissão `store.refunds` **não** é concedida por padrão (operação de maior
+  risco). Refund nunca é só mudança de status local: chama o gateway.
+- Segredos (access token, webhook secret, service secret) nunca são exibidos
+  nem gravados em log; IDs externos aparecem, segredos não.
+- Idempotência ponta a ponta: `webhook_events.event_id` e
+  `fulfillments.idempotency_key` (UNIQUE). Teste crítico coberto: 10 webhooks
+  idênticos + 3 retries resultam em 1 pedido, 1 pagamento lógico, 1 fulfillment
+  e 1 entitlement.
+
 ## [2.2.0] - 2026-09-07
 
 Camada de privacidade, LGPD, termos e governança de dados. Reflete o
